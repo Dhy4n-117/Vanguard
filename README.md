@@ -1,5 +1,5 @@
 <div align="center">
-
+  
 # 🛡️ Vanguard Sentinel
 
 ### Open Source Knowledge-First Data OS for Cybersecurity
