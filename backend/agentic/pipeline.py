@@ -4,11 +4,17 @@ Full query pipeline: NL → Cypher → Neo4j → AI Summary + Subgraph JSON.
 """
 
 import re
+import time
+import asyncio
 import traceback
 from backend.agentic.chain import get_chain, get_llm
 from backend.vectorstore.chroma_client import chroma_client
 from backend.graph.neo4j_client import neo4j_client
 from backend.models.schemas import QueryResponse, GraphData, GraphNode, GraphLink
+
+# Retry config for Gemini rate limits
+MAX_RETRIES = 3
+RETRY_BASE_DELAY = 2  # seconds
 
 
 async def run_query_pipeline(query: str) -> QueryResponse:
@@ -30,9 +36,23 @@ async def run_query_pipeline(query: str) -> QueryResponse:
         if context_text:
             augmented_query = f"Context from recent logs:\n{context_text}\n\nQuestion: {query}"
 
-        # Step 3: Run through GraphCypherQAChain
+        # Step 3: Run through GraphCypherQAChain (with retry for rate limits)
         chain = get_chain()
-        result = chain.invoke({"query": augmented_query})
+        result = None
+        for attempt in range(MAX_RETRIES):
+            try:
+                result = chain.invoke({"query": augmented_query})
+                break
+            except Exception as chain_err:
+                if "429" in str(chain_err) and attempt < MAX_RETRIES - 1:
+                    delay = RETRY_BASE_DELAY * (2 ** attempt)
+                    print(f"[RETRY] Gemini rate limited, retrying in {delay}s (attempt {attempt + 1}/{MAX_RETRIES})")
+                    await asyncio.sleep(delay)
+                else:
+                    raise
+
+        if result is None:
+            raise RuntimeError("Chain invocation failed after all retries")
 
         # Step 4: Extract components
         answer = result.get("result", "No answer generated.")
