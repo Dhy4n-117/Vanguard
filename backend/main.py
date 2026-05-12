@@ -62,6 +62,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Custom middleware
+from backend.middleware import RequestLoggingMiddleware, SecurityHeadersMiddleware
+app.add_middleware(RequestLoggingMiddleware)
+app.add_middleware(SecurityHeadersMiddleware)
+
 
 # ─── Health Check ─────────────────────────────────────────
 
