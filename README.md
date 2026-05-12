@@ -23,7 +23,8 @@ Vanguard Sentinel ingests raw server logs, extracts cybersecurity entities (Thre
 
 - **📊 Interactive Threat Graph** — 2D force-directed visualization of entity relationships
 - **💬 Natural Language Queries** — Ask questions in plain English, get Cypher-powered answers
-- **🔍 Semantic Log Search** — Vector-based search over raw log text via ChromaDB
+- **✨ Suggested Queries** — One-click chips for common threat analysis questions
+- **🔍 Semantic Log Search** — Vector-based search modal over raw log text via ChromaDB
 - **🧠 GraphRAG Pipeline** — LangChain translates NL → Cypher → Neo4j → AI Summary
 - **🎨 Cyberpunk UI** — Dark-mode glassmorphism with interactive spotlight glow effects
 - **🏠 Fully Local** — Runs entirely on your machine with free, open-source tools
