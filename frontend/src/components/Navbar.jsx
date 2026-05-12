@@ -7,7 +7,7 @@
 import { useState } from 'react';
 import StatusIndicator from './StatusIndicator';
 
-export default function Navbar({ onIngest, isIngesting, backendStatus }) {
+export default function Navbar({ onIngest, isIngesting, backendStatus, onSearch }) {
   return (
     <nav className="glass-card" style={{ borderRadius: '0 0 16px 16px', borderTop: 'none' }}>
       <div className="flex items-center justify-between px-6 py-3">
@@ -27,6 +27,18 @@ export default function Navbar({ onIngest, isIngesting, backendStatus }) {
         {/* Actions */}
         <div className="flex items-center gap-4">
           <StatusIndicator status={backendStatus} />
+
+          <button
+            onClick={onSearch}
+            className="px-4 py-2.5 rounded-lg text-xs font-display tracking-widest transition-all duration-200 cursor-pointer"
+            style={{
+              background: 'var(--accent-emerald-dim)',
+              color: 'var(--accent-emerald)',
+              border: '1px solid rgba(16, 185, 129, 0.2)',
+            }}
+          >
+            🔍 SEARCH
+          </button>
 
           <button
             onClick={onIngest}

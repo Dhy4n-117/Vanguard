@@ -11,12 +11,14 @@ import Navbar from '../components/Navbar';
 import StatsBar from '../components/StatsBar';
 import ChatPanel from '../components/ChatPanel';
 import GraphPanel from '../components/GraphPanel';
+import SearchPanel from '../components/SearchPanel';
 import { checkHealth, ingestData, fetchFullGraph } from '../lib/api';
 
 export default function Dashboard() {
   const [graphData, setGraphData] = useState({ nodes: [], links: [] });
   const [backendStatus, setBackendStatus] = useState('disconnected');
   const [isIngesting, setIsIngesting] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   // Health check on mount + polling
   useEffect(() => {
@@ -79,6 +81,7 @@ export default function Dashboard() {
           onIngest={handleIngest}
           isIngesting={isIngesting}
           backendStatus={backendStatus}
+          onSearch={() => setIsSearchOpen(true)}
         />
 
         {/* Main Content */}
@@ -96,6 +99,9 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* Semantic Search Modal */}
+      <SearchPanel isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
     </SpotlightProvider>
   );
 }
