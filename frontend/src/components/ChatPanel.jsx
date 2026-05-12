@@ -8,6 +8,7 @@
 import { useState, useRef, useEffect } from 'react';
 import GlassCard from './GlassCard';
 import MessageBubble from './MessageBubble';
+import SuggestedQueries from './SuggestedQueries';
 import { queryGraph } from '../lib/api';
 
 export default function ChatPanel({ onGraphUpdate }) {
@@ -73,6 +74,9 @@ export default function ChatPanel({ onGraphUpdate }) {
           Ask questions about your security data in natural language
         </p>
       </div>
+
+      {/* Suggested Queries */}
+      <SuggestedQueries onSelect={(q) => setInput(q)} disabled={isLoading} />
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4" style={{ minHeight: 0 }}>
