@@ -58,7 +58,7 @@ def load_to_neo4j(parsed_data: dict) -> dict:
                 client.run_cypher(queries.CREATE_LOGGED_FROM, rel)
             edges_created += 1
         except Exception as e:
-            print(f"⚠️  Skipping relationship {rel_type}: {e}")
+            print(f"[WARN] Skipping relationship {rel_type}: {e}")
 
     return {"nodes_created": nodes_created, "edges_created": edges_created}
 

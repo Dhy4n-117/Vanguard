@@ -152,4 +152,4 @@ if __name__ == "__main__":
     import json
     logs = generate_mock_logs(120)
     print(json.dumps(logs[:3], indent=2))
-    print(f"\n✅ Generated {len(logs)} mock log entries")
+    print(f"\n[OK] Generated {len(logs)} mock log entries")

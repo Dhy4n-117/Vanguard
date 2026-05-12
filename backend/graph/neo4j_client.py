@@ -22,13 +22,13 @@ class Neo4jClient:
         )
         # Verify connectivity
         self._driver.verify_connectivity()
-        print("✅ Neo4j connected")
+        print("[OK] Neo4j connected")
 
     def close(self):
         """Close the Neo4j driver."""
         if self._driver:
             self._driver.close()
-            print("🔌 Neo4j disconnected")
+            print("[OK] Neo4j disconnected")
 
     @property
     def driver(self):
@@ -89,6 +89,8 @@ class Neo4jClient:
     def is_connected(self) -> bool:
         """Check if Neo4j is reachable."""
         try:
+            if self._driver is None:
+                return False
             self._driver.verify_connectivity()
             return True
         except Exception:

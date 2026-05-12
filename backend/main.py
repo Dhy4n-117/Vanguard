@@ -17,27 +17,27 @@ from backend.models.schemas import HealthResponse
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Initialize Neo4j and ChromaDB on startup, close on shutdown."""
-    print("\n🛡️  Vanguard Sentinel — Starting up...")
+    print("\n[SENTINEL] Vanguard Sentinel -- Starting up...")
 
     # Connect Neo4j
     try:
         neo4j_client.connect()
     except Exception as e:
-        print(f"⚠️  Neo4j connection failed: {e}")
+        print(f"[WARN] Neo4j connection failed: {e}")
         print("   Make sure Docker is running: docker-compose up -d")
 
     # Connect ChromaDB
     try:
         chroma_client.connect()
     except Exception as e:
-        print(f"⚠️  ChromaDB connection failed: {e}")
+        print(f"[WARN] ChromaDB connection failed: {e}")
 
-    print("🚀 Vanguard Sentinel — Ready\n")
+    print("[OK] Vanguard Sentinel -- Ready\n")
     yield
 
     # Shutdown
     neo4j_client.close()
-    print("🛡️  Vanguard Sentinel — Shut down\n")
+    print("[SENTINEL] Vanguard Sentinel -- Shut down\n")
 
 
 # ─── App Setup ────────────────────────────────────────────

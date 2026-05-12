@@ -142,7 +142,7 @@ def _build_subgraph_from_cypher(cypher: str) -> GraphData:
                 links=links,
             )
     except Exception as e:
-        print(f"⚠️  Subgraph extraction failed: {e}")
+        print(f"[WARN] Subgraph extraction failed: {e}")
         return GraphData()
 
 

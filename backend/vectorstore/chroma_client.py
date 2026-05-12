@@ -27,7 +27,7 @@ class ChromaClient:
             name=self.COLLECTION_NAME,
             metadata={"hnsw:space": "cosine"},
         )
-        print(f"✅ ChromaDB connected — collection '{self.COLLECTION_NAME}' ({self._collection.count()} docs)")
+        print(f"[OK] ChromaDB connected -- collection '{self.COLLECTION_NAME}' ({self._collection.count()} docs)")
 
     @property
     def collection(self):
