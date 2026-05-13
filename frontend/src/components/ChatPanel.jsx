@@ -11,7 +11,9 @@ import MessageBubble from './MessageBubble';
 import SuggestedQueries from './SuggestedQueries';
 import { queryGraph } from '../lib/api';
 
-export default function ChatPanel({ onGraphUpdate }) {
+import { PanelLeftClose } from 'lucide-react';
+
+export default function ChatPanel({ onGraphUpdate, onClose }) {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
@@ -64,15 +66,26 @@ export default function ChatPanel({ onGraphUpdate }) {
   };
 
   return (
-    <GlassCard variant="cyan" className="flex flex-col h-full">
+    <GlassCard variant="cyan" className="flex flex-col h-full relative">
       {/* Header */}
-      <div className="px-5 py-4" style={{ borderBottom: '1px solid var(--glass-border)' }}>
-        <h2 className="font-display text-sm font-semibold tracking-widest" style={{ color: 'var(--accent-cyan)' }}>
-          💬 THREAT INTELLIGENCE CHAT
-        </h2>
-        <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
-          Ask questions about your security data in natural language
-        </p>
+      <div className="px-5 py-4 flex justify-between items-start" style={{ borderBottom: '1px solid var(--glass-border)' }}>
+        <div>
+          <h2 className="font-display text-sm font-semibold tracking-widest" style={{ color: 'var(--accent-cyan)' }}>
+            💬 THREAT INTELLIGENCE CHAT
+          </h2>
+          <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
+            Ask questions about your security data in natural language
+          </p>
+        </div>
+        {onClose && (
+          <button 
+            onClick={onClose}
+            className="p-1 rounded hover:bg-[rgba(59,130,246,0.1)] transition-colors text-[#3b82f6] opacity-70 hover:opacity-100 ml-2"
+            title="Hide Chat"
+          >
+            <PanelLeftClose size={18} />
+          </button>
+        )}
       </div>
 
       {/* Suggested Queries */}

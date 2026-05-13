@@ -14,12 +14,16 @@ import GraphPanel from '../components/GraphPanel';
 import SearchPanel from '../components/SearchPanel';
 import LiveFeed from '../components/LiveFeed';
 import { checkHealth, ingestData, fetchFullGraph } from '../lib/api';
+import { PanelGroup, Panel, PanelResizeHandle } from 'react-resizable-panels';
+import { ChevronUp, ChevronDown, PanelLeftClose, PanelLeft } from 'lucide-react';
 
 export default function Dashboard() {
   const [graphData, setGraphData] = useState({ nodes: [], links: [] });
   const [backendStatus, setBackendStatus] = useState('disconnected');
   const [isIngesting, setIsIngesting] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isStatsExpanded, setIsStatsExpanded] = useState(true);
+  const [isChatExpanded, setIsChatExpanded] = useState(true);
 
   // Health check on mount + polling
   useEffect(() => {
@@ -92,17 +96,67 @@ export default function Dashboard() {
         />
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col gap-3 p-4 overflow-hidden">
-          {/* Stats Bar */}
-          <StatsBar graphData={graphData} />
+        <div className="flex-1 flex flex-col gap-3 p-4 overflow-hidden relative">
+          
+          {/* Stats Bar Header with Collapse Toggle */}
+          <div className="flex items-center justify-between">
+            <h2 className="text-xs font-display tracking-widest text-[#6b7280]">
+              SYSTEM STATISTICS
+            </h2>
+            <button
+              onClick={() => setIsStatsExpanded(!isStatsExpanded)}
+              className="p-1 rounded hover:bg-[rgba(255,255,255,0.05)] transition-colors"
+              title={isStatsExpanded ? "Collapse Stats" : "Expand Stats"}
+            >
+              {isStatsExpanded ? <ChevronUp size={16} className="text-[#3b82f6]" /> : <ChevronDown size={16} className="text-[#3b82f6]" />}
+            </button>
+          </div>
 
-          {/* Split Screen: Chat + Graph */}
-          <div className="flex-1 grid grid-cols-[420px_1fr] gap-3 min-h-0">
-            {/* Left: Chat Panel */}
-            <ChatPanel onGraphUpdate={handleGraphUpdate} />
+          {/* Collapsible Stats Bar */}
+          {isStatsExpanded && (
+            <div className="animate-fade-in-up">
+              <StatsBar graphData={graphData} />
+            </div>
+          )}
 
-            {/* Right: Graph Panel */}
-            <GraphPanel graphData={graphData} onGraphUpdate={setGraphData} />
+          {/* Resizable Split Screen: Chat + Graph */}
+          <div className="flex-1 min-h-0 relative flex gap-3">
+            {/* Overlay button to toggle chat (only visible when collapsed) */}
+            {!isChatExpanded && (
+              <button
+                onClick={() => setIsChatExpanded(true)}
+                className="absolute top-4 left-4 z-50 p-2 rounded-lg bg-[rgba(10,15,25,0.8)] border border-[rgba(255,255,255,0.1)] backdrop-blur shadow-lg hover:bg-[rgba(59,130,246,0.2)] hover:border-[#3b82f6] transition-all animate-fade-in-up"
+                title="Show Chat"
+              >
+                <PanelLeft size={18} className="text-[#3b82f6]" />
+              </button>
+            )}
+
+            <PanelGroup direction="horizontal">
+              {/* Left: Chat Panel */}
+              {isChatExpanded && (
+                <>
+                  <Panel defaultSize={30} minSize={20} maxSize={50}>
+                    <div className="h-full">
+                      <ChatPanel onGraphUpdate={handleGraphUpdate} onClose={() => setIsChatExpanded(false)} />
+                    </div>
+                  </Panel>
+
+                  {/* Drag Handle */}
+                  <PanelResizeHandle className="w-3 relative group flex items-center justify-center cursor-col-resize outline-none">
+                    <div className="w-1 h-full bg-[rgba(255,255,255,0.05)] group-hover:bg-[#3b82f6] group-active:bg-[#3b82f6] transition-colors rounded-full" />
+                    <div className="absolute h-8 w-1 bg-[#3b82f6] rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </PanelResizeHandle>
+                </>
+              )}
+
+              {/* Right: Graph Panel */}
+              <Panel defaultSize={isChatExpanded ? 70 : 100} minSize={30}>
+                <div className="h-full relative">
+                  <GraphPanel graphData={graphData} onGraphUpdate={setGraphData} />
+                </div>
+              </Panel>
+            </PanelGroup>
           </div>
 
           {/* Live Event Feed */}
