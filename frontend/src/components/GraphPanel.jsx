@@ -37,21 +37,28 @@ export default function GraphPanel({ graphData, onGraphUpdate }) {
   const [isExpanding, setIsExpanding] = useState(false);
   const [expandedNodeIds, setExpandedNodeIds] = useState(new Set());
 
-  // Track container size
+  // Track container size using ResizeObserver
   useEffect(() => {
+    if (!containerRef.current) return;
+    
     const updateSize = () => {
       if (containerRef.current) {
         const rect = containerRef.current.getBoundingClientRect();
         setDimensions({
           width: rect.width,
-          height: rect.height - 60, // subtract header
+          height: rect.height, // Removed the -60 subtraction, we can just rely on flex layout
         });
       }
     };
 
-    updateSize();
-    window.addEventListener('resize', updateSize);
-    return () => window.removeEventListener('resize', updateSize);
+    const resizeObserver = new ResizeObserver(() => {
+      updateSize();
+    });
+
+    resizeObserver.observe(containerRef.current);
+    updateSize(); // Initial call
+
+    return () => resizeObserver.disconnect();
   }, []);
 
   // ─── Double-click to expand a node ──────────────────────

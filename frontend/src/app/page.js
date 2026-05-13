@@ -14,7 +14,7 @@ import GraphPanel from '../components/GraphPanel';
 import SearchPanel from '../components/SearchPanel';
 import LiveFeed from '../components/LiveFeed';
 import { checkHealth, ingestData, fetchFullGraph } from '../lib/api';
-import { PanelGroup, Panel, PanelResizeHandle } from 'react-resizable-panels';
+import { Group as PanelGroup, Panel, Separator as PanelResizeHandle } from 'react-resizable-panels';
 import { ChevronUp, ChevronDown, PanelLeftClose, PanelLeft } from 'lucide-react';
 
 export default function Dashboard() {
