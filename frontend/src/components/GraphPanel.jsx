@@ -181,9 +181,9 @@ export default function GraphPanel({ graphData, onGraphUpdate }) {
   const hasData = graphData?.nodes?.length > 0;
 
   return (
-    <GlassCard variant="magenta" className="flex flex-col h-full">
+    <GlassCard variant="magenta" className="flex flex-col h-full overflow-hidden">
       {/* Header */}
-      <div className="px-5 py-4 flex items-center justify-between" style={{ borderBottom: '1px solid var(--glass-border)' }}>
+      <div className="px-5 py-4 flex flex-col xl:flex-row xl:items-center justify-between gap-3" style={{ borderBottom: '1px solid var(--glass-border)' }}>
         <div>
           <h2 className="font-display text-sm font-semibold tracking-widest" style={{ color: 'var(--accent-magenta)' }}>
             🔮 THREAT GRAPH
@@ -195,7 +195,7 @@ export default function GraphPanel({ graphData, onGraphUpdate }) {
         </div>
 
         {/* Legend */}
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
           {Object.entries(NODE_COLORS).filter(([k]) => k !== 'LogEntry').map(([label, color]) => (
             <div key={label} className="flex items-center gap-1">
               <span className="w-2.5 h-2.5 rounded-full" style={{ background: color }} />

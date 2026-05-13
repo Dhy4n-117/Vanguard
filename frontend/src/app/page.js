@@ -152,7 +152,7 @@ export default function Dashboard() {
 
               {/* Right: Graph Panel */}
               <Panel defaultSize={isChatExpanded ? 70 : 100} minSize={30}>
-                <div className="h-full relative overflow-hidden flex flex-col">
+                <div className="h-full relative overflow-hidden min-w-0 min-h-0">
                   <GraphPanel graphData={graphData} onGraphUpdate={setGraphData} />
                 </div>
               </Panel>
