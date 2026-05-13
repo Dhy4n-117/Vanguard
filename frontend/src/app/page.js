@@ -5,7 +5,7 @@
  * Split-screen layout: Chat (left) + Force Graph (right)
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import SpotlightProvider from '../components/SpotlightProvider';
 import Navbar from '../components/Navbar';
 import StatsBar from '../components/StatsBar';
@@ -14,7 +14,6 @@ import GraphPanel from '../components/GraphPanel';
 import SearchPanel from '../components/SearchPanel';
 import LiveFeed from '../components/LiveFeed';
 import { checkHealth, ingestData, fetchFullGraph } from '../lib/api';
-import { Group as PanelGroup, Panel, Separator as PanelResizeHandle } from 'react-resizable-panels';
 import { ChevronUp, ChevronDown, PanelLeftClose, PanelLeft } from 'lucide-react';
 
 export default function Dashboard() {
@@ -24,6 +23,11 @@ export default function Dashboard() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isStatsExpanded, setIsStatsExpanded] = useState(true);
   const [isChatExpanded, setIsChatExpanded] = useState(true);
+
+  // Custom Split Pane State
+  const [chatWidth, setChatWidth] = useState(30); // percentage
+  const [isDragging, setIsDragging] = useState(false);
+  const splitPaneRef = useRef(null);
 
   // Health check on mount + polling
   useEffect(() => {
@@ -43,129 +47,205 @@ export default function Dashboard() {
 
   // Fetch full graph when backend comes online
   useEffect(() => {
-    if (backendStatus === 'connected') {
-      loadFullGraph();
+    if (backendStatus === 'connected' && graphData.nodes.length === 0) {
+      fetchFullGraph().then(setGraphData).catch(console.error);
     }
   }, [backendStatus]);
-
-  const loadFullGraph = async () => {
-    try {
-      const data = await fetchFullGraph();
-      if (data.nodes?.length > 0) {
-        setGraphData(data);
-      }
-    } catch (err) {
-      console.error('Failed to load graph:', err);
-    }
-  };
 
   const handleIngest = async () => {
     setIsIngesting(true);
     try {
       await ingestData();
-      // Reload graph after ingestion
-      await loadFullGraph();
+      const newData = await fetchFullGraph();
+      setGraphData(newData);
     } catch (err) {
-      console.error('Ingestion failed:', err);
+      console.error('Failed to ingest:', err);
+      alert('Ingestion failed: ' + err.message);
     } finally {
       setIsIngesting(false);
     }
   };
 
-  const handleGraphUpdate = useCallback((subgraph) => {
-    if (subgraph.nodes?.length > 0) {
-      setGraphData(subgraph);
+  const handleLiveEvent = useCallback((type, data) => {
+    if (type === 'new_nodes' && data.subgraph) {
+      setGraphData(prev => {
+        const nodeMap = new Map(prev.nodes.map(n => [n.id, n]));
+        const linkSet = new Set(prev.links.map(l => `${l.source}-${l.target}`));
+
+        data.subgraph.nodes?.forEach(n => nodeMap.set(n.id, n));
+        const newLinks = (data.subgraph.links || []).filter(l => {
+          const key = `${l.source}-${l.target}`;
+          if (linkSet.has(key)) return false;
+          linkSet.add(key);
+          return true;
+        });
+
+        return {
+          nodes: Array.from(nodeMap.values()),
+          links: [...prev.links, ...newLinks],
+        };
+      });
     }
   }, []);
 
-  // Refresh graph periodically during live streaming
-  const handleLiveEvent = useCallback(() => {
-    // Reload full graph every 5 events to keep visualization in sync
-    loadFullGraph();
+  const handleGraphUpdate = useCallback((subgraph) => {
+    setGraphData(prev => {
+      const nodeMap = new Map(prev.nodes.map(n => [n.id, n]));
+      const linkSet = new Set(prev.links.map(l => 
+        `${l.source?.id || l.source}-${l.target?.id || l.target}`
+      ));
+
+      subgraph.nodes?.forEach(n => nodeMap.set(n.id, n));
+      const newLinks = (subgraph.links || []).filter(l => {
+        const key = `${l.source}-${l.target}`;
+        if (linkSet.has(key)) return false;
+        linkSet.add(key);
+        return true;
+      });
+
+      return {
+        nodes: Array.from(nodeMap.values()),
+        links: [...prev.links, ...newLinks],
+      };
+    });
   }, []);
+
+  // Custom Split Pane Drag Handlers
+  const handleMouseDown = useCallback((e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isDragging) return;
+
+    const handleMouseMove = (e) => {
+      if (!splitPaneRef.current) return;
+      const rect = splitPaneRef.current.getBoundingClientRect();
+      let newWidth = ((e.clientX - rect.left) / rect.width) * 100;
+      
+      // Constraints
+      if (newWidth < 20) newWidth = 20;
+      if (newWidth > 50) newWidth = 50;
+      
+      setChatWidth(newWidth);
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    
+    // Add a class to body to prevent text selection and cursor changes during drag
+    document.body.style.userSelect = 'none';
+    document.body.style.cursor = 'col-resize';
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.userSelect = '';
+      document.body.style.cursor = '';
+    };
+  }, [isDragging]);
+
+  const isSidebarExpanded = false; // Left menu is collapsed by default
 
   return (
     <SpotlightProvider>
-      <div className="flex flex-col h-screen overflow-hidden">
-        {/* Top Navbar */}
-        <Navbar
-          onIngest={handleIngest}
-          isIngesting={isIngesting}
-          backendStatus={backendStatus}
-          onSearch={() => setIsSearchOpen(true)}
-        />
+      <div className="flex h-screen w-screen overflow-hidden text-[#f1f5f9] font-body relative" style={{ backgroundColor: 'var(--bg-base)' }}>
+        {/* Transparent Overlay to capture mouse events during drag (prevents canvas from eating them) */}
+        {isDragging && <div className="absolute inset-0 z-[100]" />}
 
-        {/* Main Content */}
-        <div className="flex-1 flex flex-col gap-3 p-4 overflow-hidden relative">
-          
-          {/* Stats Bar Header with Collapse Toggle */}
-          <div className="flex items-center justify-between">
-            <h2 className="text-xs font-display tracking-widest text-[#6b7280]">
-              SYSTEM STATISTICS
-            </h2>
-            <button
-              onClick={() => setIsStatsExpanded(!isStatsExpanded)}
-              className="p-1 rounded hover:bg-[rgba(255,255,255,0.05)] transition-colors"
-              title={isStatsExpanded ? "Collapse Stats" : "Expand Stats"}
-            >
-              {isStatsExpanded ? <ChevronUp size={16} className="text-[#3b82f6]" /> : <ChevronDown size={16} className="text-[#3b82f6]" />}
-            </button>
+        {/* Left Sidebar (Pillar) */}
+        <div className={`transition-all duration-500 ease-in-out ${isSidebarExpanded ? 'w-64' : 'w-16'} border-r flex flex-col relative`} style={{ borderColor: 'var(--glass-border)', background: 'rgba(10, 15, 25, 0.6)', zIndex: 40 }}>
+          <div className="flex-1 overflow-hidden hover:overflow-y-auto">
+            {/* Nav content would go here */}
           </div>
+          {/* Active status indicator */}
+          <div className="h-1" style={{ background: backendStatus === 'connected' ? 'var(--accent-emerald)' : 'var(--accent-red)' }} />
+        </div>
 
-          {/* Collapsible Stats Bar */}
-          {isStatsExpanded && (
-            <div className="animate-fade-in-up">
-              <StatsBar graphData={graphData} />
-            </div>
-          )}
+        {/* Main Content Area */}
+        <div className="flex-1 flex flex-col min-w-0">
+          {/* Top Navbar */}
+          <Navbar 
+            status={backendStatus} 
+            onSearch={() => setIsSearchOpen(true)} 
+            onIngest={handleIngest} 
+            isIngesting={isIngesting}
+          />
 
-          {/* Resizable Split Screen: Chat + Graph */}
-          <div className="flex-1 min-h-0 relative flex gap-3 w-full overflow-hidden">
-            {/* Overlay button to toggle chat (only visible when collapsed) */}
-            {!isChatExpanded && (
-              <button
-                onClick={() => setIsChatExpanded(true)}
-                className="absolute top-4 left-4 z-50 p-2 rounded-lg bg-[rgba(10,15,25,0.8)] border border-[rgba(255,255,255,0.1)] backdrop-blur shadow-lg hover:bg-[rgba(59,130,246,0.2)] hover:border-[#3b82f6] transition-all animate-fade-in-up"
-                title="Show Chat"
+          {/* Main Dashboard Layout */}
+          <div className="flex-1 flex flex-col p-4 gap-4 overflow-hidden relative z-10">
+            {/* Collapsible Stats Bar Toggle */}
+            <div className="flex justify-end -mb-2 z-20">
+              <button 
+                onClick={() => setIsStatsExpanded(!isStatsExpanded)}
+                className="flex items-center gap-1 text-[10px] font-mono tracking-widest uppercase py-1 px-3 rounded-full hover:bg-[rgba(59,130,246,0.1)] transition-colors border"
+                style={{ color: 'var(--accent-cyan)', borderColor: 'var(--glass-border)', background: 'var(--bg-surface)' }}
               >
-                <PanelLeft size={18} className="text-[#3b82f6]" />
+                {isStatsExpanded ? <><ChevronUp size={12} /> Hide Stats</> : <><ChevronDown size={12} /> Show Stats</>}
               </button>
+            </div>
+
+            {/* Collapsible Stats Bar */}
+            {isStatsExpanded && (
+              <div className="animate-fade-in-up">
+                <StatsBar graphData={graphData} />
+              </div>
             )}
 
-            <PanelGroup direction="horizontal" className="w-full h-full">
+            {/* Custom Resizable Split Screen: Chat + Graph */}
+            <div ref={splitPaneRef} className="flex-1 min-h-0 relative flex w-full overflow-hidden">
+              {/* Overlay button to toggle chat (only visible when collapsed) */}
+              {!isChatExpanded && (
+                <button
+                  onClick={() => setIsChatExpanded(true)}
+                  className="absolute top-4 left-4 z-50 p-2 rounded-lg bg-[rgba(10,15,25,0.8)] border border-[rgba(255,255,255,0.1)] backdrop-blur shadow-lg hover:bg-[rgba(59,130,246,0.2)] hover:border-[#3b82f6] transition-all animate-fade-in-up"
+                  title="Show Chat"
+                >
+                  <PanelLeft size={18} className="text-[#3b82f6]" />
+                </button>
+              )}
+
               {/* Left: Chat Panel */}
               {isChatExpanded && (
-                <>
-                  <Panel defaultSize={30} minSize={20} maxSize={50}>
-                    <div className="h-full">
-                      <ChatPanel onGraphUpdate={handleGraphUpdate} onClose={() => setIsChatExpanded(false)} />
-                    </div>
-                  </Panel>
+                <div style={{ width: `${chatWidth}%` }} className="h-full flex-shrink-0 min-w-0 relative">
+                  <div className="absolute inset-0">
+                    <ChatPanel onGraphUpdate={handleGraphUpdate} onClose={() => setIsChatExpanded(false)} />
+                  </div>
+                </div>
+              )}
 
-                  {/* Drag Handle */}
-                  <PanelResizeHandle className="w-3 relative group flex items-center justify-center cursor-col-resize outline-none">
-                    <div className="w-1 h-full bg-[rgba(255,255,255,0.05)] group-hover:bg-[#3b82f6] group-active:bg-[#3b82f6] transition-colors rounded-full" />
-                    <div className="absolute h-8 w-1 bg-[#3b82f6] rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </PanelResizeHandle>
-                </>
+              {/* Custom Drag Handle */}
+              {isChatExpanded && (
+                <div 
+                  className="w-3 relative group flex items-center justify-center cursor-col-resize flex-shrink-0 z-30"
+                  onMouseDown={handleMouseDown}
+                >
+                  <div className={`w-1 h-full rounded-full transition-colors ${isDragging ? 'bg-[#3b82f6]' : 'bg-[rgba(255,255,255,0.05)] group-hover:bg-[#3b82f6]'}`} />
+                  <div className={`absolute h-8 w-1 rounded-full transition-opacity ${isDragging ? 'opacity-100 bg-[#3b82f6]' : 'opacity-0 group-hover:opacity-100 bg-[#3b82f6]'}`} />
+                </div>
               )}
 
               {/* Right: Graph Panel */}
-              <Panel defaultSize={isChatExpanded ? 70 : 100} minSize={30}>
-                <div className="h-full relative overflow-hidden min-w-0 min-h-0">
+              <div className="flex-1 h-full min-w-0 relative overflow-hidden ml-3">
+                <div className="absolute inset-0">
                   <GraphPanel graphData={graphData} onGraphUpdate={setGraphData} />
                 </div>
-              </Panel>
-            </PanelGroup>
+              </div>
+            </div>
+
+            {/* Live Event Feed */}
+            <LiveFeed onNewEvent={handleLiveEvent} />
           </div>
-
-          {/* Live Event Feed */}
-          <LiveFeed onNewEvent={handleLiveEvent} />
         </div>
-      </div>
 
-      {/* Semantic Search Modal */}
-      <SearchPanel isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+        {/* Semantic Search Modal */}
+        <SearchPanel isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+      </div>
     </SpotlightProvider>
   );
 }
