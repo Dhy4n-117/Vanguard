@@ -183,7 +183,7 @@ export default function GraphPanel({ graphData, onGraphUpdate }) {
   return (
     <GlassCard variant="magenta" className="flex flex-col h-full overflow-hidden">
       {/* Header */}
-      <div className="px-5 py-4 flex flex-col xl:flex-row xl:items-center justify-between gap-3" style={{ borderBottom: '1px solid var(--glass-border)' }}>
+      <div className="px-5 py-4 flex flex-wrap items-center justify-between gap-3" style={{ borderBottom: '1px solid var(--glass-border)' }}>
         <div>
           <h2 className="font-display text-sm font-semibold tracking-widest" style={{ color: 'var(--accent-magenta)' }}>
             🔮 THREAT GRAPH

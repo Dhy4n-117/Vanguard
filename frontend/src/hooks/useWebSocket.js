@@ -43,7 +43,9 @@ export default function useWebSocket({ onEvent, enabled = true }) {
 
         // Auto-reconnect
         if (enabled) {
-          reconnectTimer.current = setTimeout(connect, RECONNECT_DELAY);
+          reconnectTimer.current = setTimeout(() => {
+            if (wsRef.current === ws) connect();
+          }, RECONNECT_DELAY);
         }
       };
 

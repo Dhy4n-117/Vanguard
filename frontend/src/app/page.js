@@ -120,7 +120,7 @@ export default function Dashboard() {
           )}
 
           {/* Resizable Split Screen: Chat + Graph */}
-          <div className="flex-1 min-h-0 relative flex gap-3">
+          <div className="flex-1 min-h-0 relative flex gap-3 w-full overflow-hidden">
             {/* Overlay button to toggle chat (only visible when collapsed) */}
             {!isChatExpanded && (
               <button
@@ -132,7 +132,7 @@ export default function Dashboard() {
               </button>
             )}
 
-            <PanelGroup direction="horizontal">
+            <PanelGroup direction="horizontal" className="w-full h-full">
               {/* Left: Chat Panel */}
               {isChatExpanded && (
                 <>

@@ -66,7 +66,7 @@ export default function ChatPanel({ onGraphUpdate, onClose }) {
   };
 
   return (
-    <GlassCard variant="cyan" className="flex flex-col h-full relative">
+    <GlassCard variant="cyan" className="flex flex-col h-full relative overflow-hidden">
       {/* Header */}
       <div className="px-5 py-4 flex justify-between items-start" style={{ borderBottom: '1px solid var(--glass-border)' }}>
         <div>
