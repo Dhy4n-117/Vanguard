@@ -19,6 +19,14 @@ class Settings(BaseSettings):
     # ── Google Gemini ──────────────────────────
     gemini_api_key: str = ""
 
+    # ── LLM Provider ──────────────────────────
+    # Options: "gemini" (cloud) or "ollama" (local, zero-trust)
+    llm_provider: str = "gemini"
+
+    # ── Ollama (local AI) ─────────────────────
+    ollama_model: str = "llama3"
+    ollama_base_url: str = "http://localhost:11434"
+
     # ── Server ─────────────────────────────────
     backend_host: str = "0.0.0.0"
     backend_port: int = 8000
