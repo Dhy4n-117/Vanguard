@@ -12,6 +12,7 @@ import StatsBar from '../components/StatsBar';
 import ChatPanel from '../components/ChatPanel';
 import GraphPanel from '../components/GraphPanel';
 import SearchPanel from '../components/SearchPanel';
+import LiveFeed from '../components/LiveFeed';
 import { checkHealth, ingestData, fetchFullGraph } from '../lib/api';
 
 export default function Dashboard() {
@@ -73,6 +74,12 @@ export default function Dashboard() {
     }
   }, []);
 
+  // Refresh graph periodically during live streaming
+  const handleLiveEvent = useCallback(() => {
+    // Reload full graph every 5 events to keep visualization in sync
+    loadFullGraph();
+  }, []);
+
   return (
     <SpotlightProvider>
       <div className="flex flex-col h-screen overflow-hidden">
@@ -97,6 +104,9 @@ export default function Dashboard() {
             {/* Right: Graph Panel */}
             <GraphPanel graphData={graphData} onGraphUpdate={setGraphData} />
           </div>
+
+          {/* Live Event Feed */}
+          <LiveFeed onNewEvent={handleLiveEvent} />
         </div>
       </div>
 

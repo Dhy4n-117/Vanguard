@@ -338,3 +338,10 @@ body::after {
 .graph-container canvas {
   border-radius: 12px;
 }
+
+/* ─── Live Stream Pulse ──────────────────────────────────── */
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(1.5); }
+}

@@ -74,3 +74,24 @@ export async function expandNode(nodeId) {
   // node_id often contains # or / from neo4j elementIds, so we must encode it
   return apiFetch(`/api/graph/expand/${encodeURIComponent(nodeId)}`);
 }
+
+/**
+ * Start the live event simulator.
+ */
+export async function startStream(interval = 5) {
+  return apiFetch(`/api/stream/start?interval=${interval}`, { method: 'POST' });
+}
+
+/**
+ * Stop the live event simulator.
+ */
+export async function stopStream() {
+  return apiFetch('/api/stream/stop', { method: 'POST' });
+}
+
+/**
+ * Get live stream status.
+ */
+export async function getStreamStatus() {
+  return apiFetch('/api/stream/status');
+}
