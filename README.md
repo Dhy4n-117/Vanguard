@@ -17,7 +17,7 @@
 
 ## Overview
 
-Vanguard Sentinel ingests raw server logs, extracts cybersecurity entities (Threat Actors, IPs, Assets, Vulnerabilities), builds a knowledge graph in **Neo4j**, enables semantic search via **ChromaDB**, and exposes a natural-language **GraphRAG** query interface powered by **LangChain + Google Gemini** — all wrapped in a cyberpunk-inspired glassmorphism frontend.
+Vanguard Sentinel ingests raw server logs, extracts cybersecurity entities (Threat Actors, IPs, Assets, Vulnerabilities), builds a knowledge graph in **Neo4j**, enables semantic search via **ChromaDB**, and exposes a natural-language **GraphRAG** query interface powered by **LangChain + local AI (Ollama)** — all wrapped in a cyberpunk-inspired glassmorphism frontend.
 
 ### Key Features
 
@@ -39,7 +39,7 @@ Vanguard Sentinel ingests raw server logs, extracts cybersecurity entities (Thre
 ├─────────────────────────────────────────────────────────────┤
 │  Backend (Python FastAPI)                                   │
 │  ├── Ingestion Pipeline (Log Parser → Entity Extractor)     │
-│  ├── GraphRAG Engine (LangChain + Gemini)                   │
+│  ├── GraphRAG Engine (LangChain + Ollama/Gemini)             │
 │  └── REST API Layer                                         │
 ├─────────────────────────────────────────────────────────────┤
 │  Data Layer                                                 │
@@ -58,7 +58,7 @@ Vanguard Sentinel ingests raw server logs, extracts cybersecurity entities (Thre
 | **Backend**    | Python 3.11+, FastAPI, Uvicorn          |
 | **Graph DB**   | Neo4j Community Edition (Dockerized)    |
 | **Vector DB**  | ChromaDB (embedded, local persistence)  |
-| **AI/LLM**     | LangChain, Google Gemini API (Free Tier)|
+| **AI/LLM**     | LangChain, Ollama (local) or Gemini (cloud)|
 | **Embeddings** | sentence-transformers (all-MiniLM-L6-v2)|
 
 ---
@@ -93,7 +93,7 @@ Vanguard/
 - **Docker Desktop** — for running Neo4j
 - **Python 3.11+** — for the backend
 - **Node.js 18+** — for the frontend
-- **Google Gemini API Key** — [Get one free](https://makersuite.google.com/app/apikey)
+- **Ollama** — for local AI ([Install](https://ollama.com)), then run `ollama pull llama3`
 
 ---
 
@@ -106,7 +106,7 @@ cd vanguard-sentinel
 
 # 2. Set up environment
 cp .env.example .env
-# Edit .env with your GEMINI_API_KEY
+# No API keys needed — Ollama runs locally by default
 
 # 3. Start Neo4j
 docker-compose up -d

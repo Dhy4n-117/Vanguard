@@ -3,7 +3,7 @@ uvicorn[standard]==0.30.0
 neo4j==5.25.0
 chromadb==0.5.23
 langchain==0.3.14
-langchain-google-genai==2.0.8
+langchain-ollama==0.3.0
 langchain-community==0.3.14
 langchain-chroma==0.2.0
 langchain-neo4j==0.1.1
@@ -11,3 +11,6 @@ sentence-transformers==3.3.1
 pydantic==2.10.0
 pydantic-settings==2.7.0
 python-dotenv==1.0.1
+
+# Optional: only needed if LLM_PROVIDER=gemini
+# langchain-google-genai==2.0.8

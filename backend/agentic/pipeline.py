@@ -12,7 +12,7 @@ from backend.vectorstore.chroma_client import chroma_client
 from backend.graph.neo4j_client import neo4j_client
 from backend.models.schemas import QueryResponse, GraphData, GraphNode, GraphLink
 
-# Retry config for Gemini rate limits
+# Retry config for LLM rate limits
 MAX_RETRIES = 3
 RETRY_BASE_DELAY = 2  # seconds
 
@@ -46,7 +46,7 @@ async def run_query_pipeline(query: str) -> QueryResponse:
             except Exception as chain_err:
                 if "429" in str(chain_err) and attempt < MAX_RETRIES - 1:
                     delay = RETRY_BASE_DELAY * (2 ** attempt)
-                    print(f"[RETRY] Gemini rate limited, retrying in {delay}s (attempt {attempt + 1}/{MAX_RETRIES})")
+                    print(f"[RETRY] LLM rate limited, retrying in {delay}s (attempt {attempt + 1}/{MAX_RETRIES})")
                     await asyncio.sleep(delay)
                 else:
                     raise

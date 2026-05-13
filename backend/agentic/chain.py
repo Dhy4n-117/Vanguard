@@ -1,7 +1,7 @@
 """
 Vanguard Sentinel — LangChain Chain Setup
-Supports both cloud (Gemini) and local (Ollama) LLM providers.
-Set LLM_PROVIDER=ollama in .env for zero-trust, air-gapped operation.
+Supports local (Ollama) and cloud (Gemini) LLM providers.
+Default: Ollama for zero-trust, air-gapped operation.
 """
 
 from langchain_neo4j import Neo4jGraph, GraphCypherQAChain
@@ -17,31 +17,27 @@ _neo4j_graph = None
 def get_llm():
     """
     Initialize the LLM based on the configured provider.
-    - "gemini": Uses Google Gemini API (cloud, requires API key)
-    - "ollama": Uses Ollama (local, zero-trust, air-gapped)
+    - "ollama" (default): Local, zero-trust, air-gapped
+    - "gemini": Cloud fallback (requires API key)
     """
-    if settings.llm_provider == "ollama":
-        try:
-            from langchain_ollama import ChatOllama
-            print(f"[AI] Using Ollama (local) — model: {settings.ollama_model}")
-            return ChatOllama(
-                model=settings.ollama_model,
-                base_url=settings.ollama_base_url,
-                temperature=0.1,
-                num_predict=2048,
-            )
-        except ImportError:
-            print("[WARN] langchain-ollama not installed. Run: pip install langchain-ollama")
-            print("[WARN] Falling back to Gemini...")
+    if settings.llm_provider == "gemini" and settings.gemini_api_key:
+        from langchain_google_genai import ChatGoogleGenerativeAI
+        print("[AI] Using Google Gemini (cloud fallback)")
+        return ChatGoogleGenerativeAI(
+            model="gemini-2.0-flash",
+            google_api_key=settings.gemini_api_key,
+            temperature=0.1,
+            max_output_tokens=2048,
+        )
 
-    # Default: Gemini (cloud)
-    from langchain_google_genai import ChatGoogleGenerativeAI
-    print("[AI] Using Google Gemini (cloud)")
-    return ChatGoogleGenerativeAI(
-        model="gemini-2.0-flash",
-        google_api_key=settings.gemini_api_key,
+    # Default: Ollama (local)
+    from langchain_ollama import ChatOllama
+    print(f"[AI] Using Ollama (local) -- model: {settings.ollama_model}")
+    return ChatOllama(
+        model=settings.ollama_model,
+        base_url=settings.ollama_base_url,
         temperature=0.1,
-        max_output_tokens=2048,
+        num_predict=2048,
     )
 
 

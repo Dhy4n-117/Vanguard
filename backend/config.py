@@ -16,16 +16,17 @@ class Settings(BaseSettings):
     # ── ChromaDB ───────────────────────────────
     chroma_persist_dir: str = "./backend/chroma_db"
 
-    # ── Google Gemini ──────────────────────────
-    gemini_api_key: str = ""
-
     # ── LLM Provider ──────────────────────────
-    # Options: "gemini" (cloud) or "ollama" (local, zero-trust)
-    llm_provider: str = "gemini"
+    # "ollama" = local, zero-trust (default)
+    # "gemini" = cloud fallback (requires gemini_api_key)
+    llm_provider: str = "ollama"
 
-    # ── Ollama (local AI) ─────────────────────
+    # ── Ollama (Local AI) ─────────────────────
     ollama_model: str = "llama3"
     ollama_base_url: str = "http://localhost:11434"
+
+    # ── Google Gemini (optional cloud fallback) ─
+    gemini_api_key: str = ""
 
     # ── Server ─────────────────────────────────
     backend_host: str = "0.0.0.0"

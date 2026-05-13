@@ -9,7 +9,7 @@ Thank you for considering contributing to Vanguard Sentinel! This document provi
 - **Python 3.11+**
 - **Node.js 18+**
 - **Docker Desktop** (for Neo4j)
-- **Gemini API Key** ([Get one free](https://aistudio.google.com/apikey))
+- **Ollama** — for local AI ([Install from ollama.com](https://ollama.com))
 
 ### Quick Start
 
@@ -27,9 +27,12 @@ venv\Scripts\activate          # Windows
 # source venv/bin/activate     # macOS/Linux
 pip install -r backend/requirements.txt
 
-# 4. Environment variables
+# 4. Pull a local AI model
+ollama pull llama3
+
+# 5. Environment variables
 cp .env.example .env
-# Edit .env and add your GEMINI_API_KEY
+# Default config uses Ollama — no API keys needed
 
 # 5. Start backend
 uvicorn backend.main:app --reload --port 8000

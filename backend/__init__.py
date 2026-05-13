@@ -9,7 +9,7 @@ Modules:
     - graph: Neo4j driver wrapper and Cypher query templates
     - ingestion: Mock log generation, parsing, and loading
     - vectorstore: ChromaDB semantic search client
-    - agentic: LangChain GraphRAG pipeline (Gemini + Neo4j)
+    - agentic: LangChain GraphRAG pipeline (Ollama/Gemini + Neo4j)
     - routes: FastAPI API endpoints
 """
 
