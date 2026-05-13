@@ -3,11 +3,13 @@
 /**
  * GraphPanel — Right-side force-directed graph visualization.
  * Renders Neo4j nodes and relationships with cyberpunk styling.
+ * Supports double-click node expansion for interactive graph exploration.
  */
 
 import { useRef, useCallback, useState, useEffect } from 'react';
 import GlassCard from './GlassCard';
 import ForceGraph2D from './ForceGraph';
+import { expandNode } from '../lib/api';
 
 // Node color mapping by label
 const NODE_COLORS = {
@@ -26,11 +28,14 @@ const NODE_LABELS = {
   LogEntry:      '📋',
 };
 
-export default function GraphPanel({ graphData }) {
+export default function GraphPanel({ graphData, onGraphUpdate }) {
   const graphRef = useRef();
   const containerRef = useRef();
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const [hoveredNode, setHoveredNode] = useState(null);
+  const [selectedNode, setSelectedNode] = useState(null);
+  const [isExpanding, setIsExpanding] = useState(false);
+  const [expandedNodeIds, setExpandedNodeIds] = useState(new Set());
 
   // Track container size
   useEffect(() => {
@@ -49,12 +54,81 @@ export default function GraphPanel({ graphData }) {
     return () => window.removeEventListener('resize', updateSize);
   }, []);
 
+  // ─── Double-click to expand a node ──────────────────────
+  const handleNodeDoubleClick = useCallback(async (node) => {
+    if (isExpanding || expandedNodeIds.has(node.id)) return;
+
+    setIsExpanding(true);
+    setSelectedNode(node);
+
+    try {
+      const neighborData = await expandNode(node.id);
+
+      if (neighborData?.nodes?.length > 0 && onGraphUpdate) {
+        // Merge new nodes/links into existing graph (deduplicate by id)
+        const existingNodeIds = new Set(graphData.nodes.map(n => n.id));
+        const existingLinkKeys = new Set(
+          graphData.links.map(l => {
+            const src = typeof l.source === 'object' ? l.source.id : l.source;
+            const tgt = typeof l.target === 'object' ? l.target.id : l.target;
+            return `${src}-${l.type}-${tgt}`;
+          })
+        );
+
+        const newNodes = neighborData.nodes.filter(n => !existingNodeIds.has(n.id));
+        const newLinks = neighborData.links.filter(l => {
+          const key = `${l.source}-${l.type}-${l.target}`;
+          return !existingLinkKeys.has(key);
+        });
+
+        const mergedGraph = {
+          nodes: [...graphData.nodes, ...newNodes],
+          links: [...graphData.links, ...newLinks],
+        };
+
+        onGraphUpdate(mergedGraph);
+        setExpandedNodeIds(prev => new Set([...prev, node.id]));
+      }
+    } catch (err) {
+      console.error('Node expansion failed:', err);
+    } finally {
+      setIsExpanding(false);
+    }
+  }, [graphData, onGraphUpdate, isExpanding, expandedNodeIds]);
+
+  // ─── Single-click to select / inspect a node ───────────
+  const handleNodeClick = useCallback((node) => {
+    setSelectedNode(prev => (prev?.id === node.id ? null : node));
+  }, []);
+
   // Custom node rendering
   const paintNode = useCallback((node, ctx, globalScale) => {
     const label = node.label || 'Unknown';
     const color = NODE_COLORS[label] || '#6b7280';
     const size = label === 'LogEntry' ? 4 : label === 'ThreatActor' ? 10 : 7;
     const isHovered = hoveredNode?.id === node.id;
+    const isSelected = selectedNode?.id === node.id;
+    const isExpanded = expandedNodeIds.has(node.id);
+
+    // Outer pulse ring for expanded nodes
+    if (isExpanded) {
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, size + 6, 0, 2 * Math.PI);
+      ctx.strokeStyle = color + '40';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([3, 3]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    // Selection ring
+    if (isSelected) {
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, size + 4, 0, 2 * Math.PI);
+      ctx.strokeStyle = '#06b6d4';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
 
     // Outer glow
     if (isHovered) {
@@ -67,7 +141,7 @@ export default function GraphPanel({ graphData }) {
     // Node circle
     ctx.beginPath();
     ctx.arc(node.x, node.y, size, 0, 2 * Math.PI);
-    ctx.fillStyle = isHovered ? color : color + 'CC';
+    ctx.fillStyle = isHovered || isSelected ? color : color + 'CC';
     ctx.fill();
 
     // Border
@@ -76,7 +150,7 @@ export default function GraphPanel({ graphData }) {
     ctx.stroke();
 
     // Label (only show when zoomed in enough or hovered)
-    if (globalScale > 1.5 || isHovered) {
+    if (globalScale > 1.5 || isHovered || isSelected) {
       const name = node.name || '';
       const fontSize = Math.max(10 / globalScale, 3);
       ctx.font = `${fontSize}px 'JetBrains Mono', monospace`;
@@ -85,7 +159,7 @@ export default function GraphPanel({ graphData }) {
       ctx.fillStyle = '#f1f5f9';
       ctx.fillText(name, node.x, node.y + size + 3);
     }
-  }, [hoveredNode]);
+  }, [hoveredNode, selectedNode, expandedNodeIds]);
 
   // Custom link rendering
   const paintLink = useCallback((link, ctx) => {
@@ -109,6 +183,7 @@ export default function GraphPanel({ graphData }) {
           </h2>
           <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
             {hasData ? `${graphData.nodes.length} nodes · ${graphData.links.length} edges` : 'No data — ingest to populate'}
+            {isExpanding && ' · Expanding...'}
           </p>
         </div>
 
@@ -122,6 +197,15 @@ export default function GraphPanel({ graphData }) {
           ))}
         </div>
       </div>
+
+      {/* Expansion hint */}
+      {hasData && (
+        <div className="px-5 py-1.5 flex items-center gap-2" style={{ borderBottom: '1px solid var(--glass-border)', background: 'rgba(6, 182, 212, 0.03)' }}>
+          <span className="text-[10px] font-mono tracking-wide" style={{ color: 'var(--accent-cyan)' }}>
+            TIP: Double-click a node to expand its relationships
+          </span>
+        </div>
+      )}
 
       {/* Graph */}
       <div ref={containerRef} className="flex-1 graph-container" style={{ minHeight: 0 }}>
@@ -142,6 +226,8 @@ export default function GraphPanel({ graphData }) {
             warmupTicks={50}
             cooldownTime={3000}
             onNodeHover={setHoveredNode}
+            onNodeClick={handleNodeClick}
+            onNodeDblClick={handleNodeDoubleClick}
             enableNodeDrag={true}
             enableZoomInteraction={true}
           />
@@ -160,18 +246,41 @@ export default function GraphPanel({ graphData }) {
         )}
       </div>
 
-      {/* Hovered node details */}
-      {hoveredNode && (
+      {/* Selected / Hovered node detail panel */}
+      {(selectedNode || hoveredNode) && (
         <div className="px-5 py-3 animate-fade-in-up" style={{ borderTop: '1px solid var(--glass-border)', background: 'var(--bg-elevated)' }}>
-          <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full" style={{ background: NODE_COLORS[hoveredNode.label] }} />
-            <span className="font-mono text-xs font-semibold" style={{ color: NODE_COLORS[hoveredNode.label] }}>
-              {hoveredNode.label}
-            </span>
-            <span className="font-mono text-xs" style={{ color: 'var(--text-primary)' }}>
-              {hoveredNode.name}
-            </span>
-          </div>
+          {(() => {
+            const node = selectedNode || hoveredNode;
+            const isExp = expandedNodeIds.has(node.id);
+            return (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="w-3 h-3 rounded-full" style={{ background: NODE_COLORS[node.label] }} />
+                  <span className="font-mono text-xs font-semibold" style={{ color: NODE_COLORS[node.label] }}>
+                    {node.label}
+                  </span>
+                  <span className="font-mono text-xs" style={{ color: 'var(--text-primary)' }}>
+                    {node.name}
+                  </span>
+                  {isExp && (
+                    <span className="text-[9px] font-mono px-1.5 py-0.5 rounded" style={{ background: 'var(--accent-cyan-dim)', color: 'var(--accent-cyan)' }}>
+                      EXPANDED
+                    </span>
+                  )}
+                </div>
+                {!isExp && selectedNode && (
+                  <button
+                    onClick={() => handleNodeDoubleClick(node)}
+                    disabled={isExpanding}
+                    className="text-[10px] font-mono px-3 py-1 rounded-lg cursor-pointer transition-colors"
+                    style={{ background: 'var(--accent-cyan-dim)', color: 'var(--accent-cyan)', border: '1px solid rgba(6, 182, 212, 0.2)' }}
+                  >
+                    {isExpanding ? 'EXPANDING...' : 'EXPAND'}
+                  </button>
+                )}
+              </div>
+            );
+          })()}
         </div>
       )}
     </GlassCard>

@@ -86,6 +86,61 @@ class Neo4jClient:
 
         return {"nodes": nodes, "links": links}
 
+    def expand_node(self, node_id: str) -> dict:
+        """
+        Fetch a specific node and its immediate (1-hop) neighbors.
+        """
+        # Query to get the central node, its neighbors, and the relationships between them
+        query = """
+        MATCH (n)-[r]-(m)
+        WHERE elementId(n) = $node_id
+        RETURN 
+            elementId(n) AS source_id, labels(n)[0] AS source_label, properties(n) AS source_props,
+            elementId(m) AS target_id, labels(m)[0] AS target_label, properties(m) AS target_props,
+            type(r) AS rel_type, properties(r) AS rel_props,
+            startNode(r) = n AS is_outgoing
+        """
+        
+        nodes_map = {}
+        links = []
+        
+        for record in self.run_cypher(query, {"node_id": node_id}):
+            # Process source node (the one we clicked)
+            s_id = record["source_id"]
+            if s_id not in nodes_map:
+                s_props = record["source_props"]
+                s_name = s_props.get("name") or s_props.get("hostname") or s_props.get("address") or s_props.get("cve_id") or s_props.get("event_type") or str(s_props.get("id", ""))
+                nodes_map[s_id] = {
+                    "id": s_id,
+                    "label": record["source_label"],
+                    "name": s_name,
+                    "properties": s_props,
+                }
+            
+            # Process target node (the neighbor)
+            t_id = record["target_id"]
+            if t_id not in nodes_map:
+                t_props = record["target_props"]
+                t_name = t_props.get("name") or t_props.get("hostname") or t_props.get("address") or t_props.get("cve_id") or t_props.get("event_type") or str(t_props.get("id", ""))
+                nodes_map[t_id] = {
+                    "id": t_id,
+                    "label": record["target_label"],
+                    "name": t_name,
+                    "properties": t_props,
+                }
+            
+            # Process relationship
+            is_outgoing = record["is_outgoing"]
+            links.append({
+                "source": s_id if is_outgoing else t_id,
+                "target": t_id if is_outgoing else s_id,
+                "type": record["rel_type"],
+                "properties": record.get("rel_props", {}),
+            })
+            
+        return {"nodes": list(nodes_map.values()), "links": links}
+
+
     def is_connected(self) -> bool:
         """Check if Neo4j is reachable."""
         try:

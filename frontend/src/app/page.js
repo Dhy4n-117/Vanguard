@@ -95,7 +95,7 @@ export default function Dashboard() {
             <ChatPanel onGraphUpdate={handleGraphUpdate} />
 
             {/* Right: Graph Panel */}
-            <GraphPanel graphData={graphData} />
+            <GraphPanel graphData={graphData} onGraphUpdate={setGraphData} />
           </div>
         </div>
       </div>

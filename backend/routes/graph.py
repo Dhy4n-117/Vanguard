@@ -18,3 +18,12 @@ async def get_full_graph():
         return GraphData(**data)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Graph fetch failed: {str(e)}")
+
+@router.get("/api/graph/expand/{node_id}", response_model=GraphData)
+async def expand_node(node_id: str):
+    """Fetch a specific node and its 1-hop neighbors."""
+    try:
+        data = neo4j_client.expand_node(node_id)
+        return GraphData(**data)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Node expansion failed: {str(e)}")

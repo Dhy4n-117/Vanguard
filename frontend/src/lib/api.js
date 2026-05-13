@@ -66,3 +66,11 @@ export async function semanticSearch(query, topK = 5) {
     body: JSON.stringify({ query, top_k: topK }),
   });
 }
+
+/**
+ * Fetch a specific node and its 1-hop neighbors.
+ */
+export async function expandNode(nodeId) {
+  // node_id often contains # or / from neo4j elementIds, so we must encode it
+  return apiFetch(`/api/graph/expand/${encodeURIComponent(nodeId)}`);
+}
