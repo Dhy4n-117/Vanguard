@@ -215,42 +215,44 @@ export default function GraphPanel({ graphData, onGraphUpdate }) {
       )}
 
       {/* Graph */}
-      <div ref={containerRef} className="flex-1 graph-container overflow-hidden" style={{ minHeight: 0, minWidth: 0 }}>
-        {hasData ? (
-          <ForceGraph2D
-            ref={graphRef}
-            graphData={graphData}
-            width={dimensions.width}
-            height={dimensions.height}
-            backgroundColor="transparent"
-            nodeCanvasObject={paintNode}
-            linkCanvasObject={paintLink}
-            nodeRelSize={6}
-            linkDirectionalArrowLength={3}
-            linkDirectionalArrowRelPos={0.8}
-            d3AlphaDecay={0.02}
-            d3VelocityDecay={0.3}
-            warmupTicks={50}
-            cooldownTime={3000}
-            onNodeHover={setHoveredNode}
-            onNodeClick={handleNodeClick}
-            onNodeDblClick={handleNodeDoubleClick}
-            enableNodeDrag={true}
-            enableZoomInteraction={true}
-          />
-        ) : (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center">
-              <div className="text-5xl mb-4 opacity-30">🔮</div>
-              <p className="font-display text-sm tracking-widest" style={{ color: 'var(--text-muted)' }}>
-                AWAITING DATA
-              </p>
-              <p className="text-xs mt-2 font-mono" style={{ color: 'var(--text-muted)' }}>
-                Click &quot;INGEST DATA&quot; to populate the graph
-              </p>
+      <div className="flex-1 relative min-h-0 min-w-0 w-full">
+        <div ref={containerRef} className="absolute inset-0 overflow-hidden">
+          {hasData ? (
+            <ForceGraph2D
+              ref={graphRef}
+              graphData={graphData}
+              width={dimensions.width}
+              height={dimensions.height}
+              backgroundColor="transparent"
+              nodeCanvasObject={paintNode}
+              linkCanvasObject={paintLink}
+              nodeRelSize={6}
+              linkDirectionalArrowLength={3}
+              linkDirectionalArrowRelPos={0.8}
+              d3AlphaDecay={0.02}
+              d3VelocityDecay={0.3}
+              warmupTicks={50}
+              cooldownTime={3000}
+              onNodeHover={setHoveredNode}
+              onNodeClick={handleNodeClick}
+              onNodeDblClick={handleNodeDoubleClick}
+              enableNodeDrag={true}
+              enableZoomInteraction={true}
+            />
+          ) : (
+            <div className="flex items-center justify-center h-full w-full">
+              <div className="text-center">
+                <div className="text-5xl mb-4 opacity-30">🔮</div>
+                <p className="font-display text-sm tracking-widest" style={{ color: 'var(--text-muted)' }}>
+                  AWAITING DATA
+                </p>
+                <p className="text-xs mt-2 font-mono" style={{ color: 'var(--text-muted)' }}>
+                  Click &quot;INGEST DATA&quot; to populate the graph
+                </p>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Selected / Hovered node detail panel */}
