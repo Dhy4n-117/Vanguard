@@ -60,8 +60,12 @@ def get_chain():
         llm = get_llm()
         graph = get_neo4j_graph()
 
+        # Get the fully-built prompt and escape any stray curly braces
+        # so LangChain doesn't try to parse schema content as variables
+        system_prompt = get_cypher_prompt().replace("{", "{{").replace("}", "}}")
+
         cypher_prompt = ChatPromptTemplate.from_messages([
-            ("system", get_cypher_prompt()),
+            ("system", system_prompt),
             ("human", "{query}"),
         ])
 
