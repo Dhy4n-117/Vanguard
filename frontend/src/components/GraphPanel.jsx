@@ -215,7 +215,7 @@ export default function GraphPanel({ graphData, onGraphUpdate }) {
       )}
 
       {/* Graph */}
-      <div ref={containerRef} className="flex-1 graph-container" style={{ minHeight: 0 }}>
+      <div ref={containerRef} className="flex-1 graph-container overflow-hidden" style={{ minHeight: 0, minWidth: 0 }}>
         {hasData ? (
           <ForceGraph2D
             ref={graphRef}
