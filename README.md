@@ -1,6 +1,8 @@
 <div align="center">
   
-# 🛡️ Vanguard Sentinel
+# Vanguard Sentinel
+
+![](Vanguard.png)
 
 ### Open Source Knowledge-First Data OS for Cybersecurity
 
