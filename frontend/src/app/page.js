@@ -23,6 +23,7 @@ export default function Dashboard() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isStatsExpanded, setIsStatsExpanded] = useState(true);
   const [isChatExpanded, setIsChatExpanded] = useState(true);
+  const [isLiveFeedExpanded, setIsLiveFeedExpanded] = useState(true);
   const [isSimulating, setIsSimulating] = useState(false);
 
   // Custom Split Pane State
@@ -226,36 +227,59 @@ export default function Dashboard() {
                 </button>
               )}
 
-              {/* Left: Chat Panel */}
-              {isChatExpanded && (
-                <div style={{ width: `${chatWidth}%` }} className="h-full flex-shrink-0 min-w-0 relative">
-                  <div className="absolute inset-0">
-                    <ChatPanel onGraphUpdate={handleGraphUpdate} onClose={() => setIsChatExpanded(false)} />
-                  </div>
+              {/* Left: Chat Panel (Always mounted to retain state, but hidden when collapsed) */}
+              <div 
+                style={{ 
+                  width: isChatExpanded ? `${chatWidth}%` : '0',
+                  opacity: isChatExpanded ? 1 : 0,
+                  pointerEvents: isChatExpanded ? 'auto' : 'none',
+                  marginRight: isChatExpanded ? '0' : '-12px' // offset the margin to prevent gap
+                }} 
+                className="h-full flex-shrink-0 min-w-0 relative transition-all duration-500 ease-in-out"
+              >
+                <div className="absolute inset-0 min-w-[300px]">
+                  <ChatPanel onGraphUpdate={handleGraphUpdate} onClose={() => setIsChatExpanded(false)} />
                 </div>
-              )}
+              </div>
 
               {/* Custom Drag Handle */}
               {isChatExpanded && (
                 <div 
-                  className="w-3 relative group flex items-center justify-center cursor-col-resize flex-shrink-0 z-30"
+                  className="w-5 -mx-1 relative group flex items-center justify-center cursor-col-resize flex-shrink-0 z-30"
                   onMouseDown={handleMouseDown}
                 >
-                  <div className={`w-1 h-full rounded-full transition-colors ${isDragging ? 'bg-[#3b82f6]' : 'bg-[rgba(255,255,255,0.05)] group-hover:bg-[#3b82f6]'}`} />
-                  <div className={`absolute h-8 w-1 rounded-full transition-opacity ${isDragging ? 'opacity-100 bg-[#3b82f6]' : 'opacity-0 group-hover:opacity-100 bg-[#3b82f6]'}`} />
+                  <div className="absolute inset-0 w-full h-full" />
+                  <div className={`w-0.5 h-full transition-colors ${isDragging ? 'bg-[#3b82f6]' : 'bg-[rgba(255,255,255,0.05)] group-hover:bg-[#3b82f6]'}`} />
+                  <div className={`absolute h-12 w-1.5 rounded-full blur-[1px] transition-all duration-300 ${isDragging ? 'opacity-100 bg-[#3b82f6] scale-y-125' : 'opacity-0 group-hover:opacity-100 bg-[#3b82f6]'}`} />
                 </div>
               )}
 
               {/* Right: Graph Panel */}
-              <div className="flex-1 h-full min-w-0 relative overflow-hidden ml-3">
+              <div className={`flex-1 h-full min-w-0 relative overflow-hidden ${isChatExpanded ? 'ml-2' : 'ml-0'}`}>
                 <div className="absolute inset-0">
                   <GraphPanel graphData={graphData} onGraphUpdate={setGraphData} />
                 </div>
               </div>
             </div>
 
-            {/* Live Event Feed */}
-            <LiveFeed onNewEvent={handleLiveEvent} />
+            {/* Bottom: Live Feed with Toggle */}
+            <div className="flex flex-col gap-2">
+              <div className="flex justify-between items-center px-1">
+                <p className="text-[9px] font-mono tracking-[0.2em] text-[#3b82f6] opacity-40 uppercase">
+                  Telemetry Stream
+                </p>
+                <button 
+                  onClick={() => setIsLiveFeedExpanded(!isLiveFeedExpanded)}
+                  className="text-[9px] font-mono px-2 py-0.5 rounded border border-[rgba(59,130,246,0.2)] hover:bg-[rgba(59,130,246,0.1)] transition-colors"
+                  style={{ color: 'var(--accent-cyan)' }}
+                >
+                  {isLiveFeedExpanded ? 'Collapse Feed' : 'Expand Feed'}
+                </button>
+              </div>
+              <div className={`transition-all duration-500 ease-in-out overflow-hidden ${isLiveFeedExpanded ? 'h-14 opacity-100' : 'h-0 opacity-0'}`}>
+                <LiveFeed onNewEvent={handleLiveEvent} />
+              </div>
+            </div>
           </div>
         </div>
 
