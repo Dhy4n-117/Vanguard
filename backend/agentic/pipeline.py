@@ -111,13 +111,19 @@ Generate ONLY the Cypher query for this question (no explanation, no markdown):
         # Execute the Cypher
         results = neo4j_client.run_cypher(cypher)
 
+        # Handle actions with no return values (AI might forget RETURN)
+        display_results = results
+        is_action = "SET " in cypher.upper() or "CREATE " in cypher.upper()
+        if not results and is_action:
+             display_results = [{"message": "Action executed successfully in the graph database."}]
+
         # Generate summary
         summary_prompt = f"""Based on these Neo4j query results, provide a concise cybersecurity analysis:
 
 Query: {query}
-Results: {str(results)[:2000]}
+Results: {str(display_results)[:2000]}
 
-Provide a 2-3 sentence analysis."""
+Provide a 2-3 sentence analysis or confirmation of the action."""
 
         summary_response = llm.invoke(summary_prompt)
         answer = summary_response.content
