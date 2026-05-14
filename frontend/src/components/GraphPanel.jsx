@@ -45,14 +45,14 @@ export default function GraphPanel({ graphData, onGraphUpdate }) {
       if (containerRef.current) {
         const rect = containerRef.current.getBoundingClientRect();
         setDimensions({
-          width: rect.width,
-          height: rect.height, // Removed the -60 subtraction, we can just rely on flex layout
+          width: Math.floor(rect.width),
+          height: Math.floor(rect.height),
         });
       }
     };
 
     const resizeObserver = new ResizeObserver(() => {
-      updateSize();
+      requestAnimationFrame(updateSize);
     });
 
     resizeObserver.observe(containerRef.current);
@@ -240,10 +240,10 @@ export default function GraphPanel({ graphData, onGraphUpdate }) {
               nodeRelSize={6}
               linkDirectionalArrowLength={3}
               linkDirectionalArrowRelPos={0.8}
-              d3AlphaDecay={0.02}
-              d3VelocityDecay={0.3}
-              warmupTicks={50}
-              cooldownTime={3000}
+              d3AlphaDecay={0.08} // Faster settling
+              d3VelocityDecay={0.5} // Higher friction to stop jitter
+              warmupTicks={0} 
+              cooldownTicks={60} // Force stop simulation after 60 ticks
               onNodeHover={setHoveredNode}
               onNodeClick={handleNodeClick}
               onNodeDblClick={handleNodeDoubleClick}
