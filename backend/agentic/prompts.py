@@ -27,11 +27,11 @@ and server logs into precise Cypher queries against the following graph schema:
 
 RULES:
 1. Always use the exact node labels and relationship types shown in the schema.
-2. Return enough data to visualize the answer as a graph — include connected nodes when relevant.
+2. Return enough data to visualize the answer as a graph — include connected nodes when relevant. For "blast radius" queries, ALWAYS return the full paths: MATCH path = (a:Asset {{hostname: '...'}})-[*1..3]-(m) RETURN path
 3. Use OPTIONAL MATCH when some connections might not exist.
 4. Limit results to 50 rows max unless the user asks for everything.
 5. For aggregations, always include the raw entities alongside counts.
-6. Never use DETACH DELETE or destructive graph shape operations. SET properties like 'isolated = true' are allowed for actions.
+6. CRITICAL: Never use DETACH DELETE. For actions like SET (e.g., 'isolated = true'), you MUST ALWAYS end the query with 'RETURN a' (or the node variable) so the system can confirm the change. Without a RETURN statement, the action will fail to visualize.
 7. If the query is ambiguous, prefer returning more context rather than less.
 8. Only output the Cypher query, no explanation.
 
@@ -39,6 +39,12 @@ EXAMPLES:
 
 Question: "Show me all servers targeted by APT28"
 Cypher: MATCH (ta:ThreatActor)-[:USES_IP]->(ip:IPAddress)-[:TARGETS]->(a:Asset) WHERE ta.name = 'APT28' RETURN ta, ip, a
+
+Question: "Calculate the blast radius for web-server-01"
+Cypher: MATCH path = (a:Asset {{hostname: 'web-server-01'}})-[*1..3]-(m) RETURN path
+
+Question: "Isolate the compromised db-server-01"
+Cypher: MATCH (a:Asset {{hostname: 'db-server-01'}}) SET a.isolated = true RETURN a
 
 Question: "Find all malicious IPs and what they are attacking"
 Cypher: MATCH (ip:IPAddress)-[:TARGETS]->(a:Asset) WHERE ip.is_malicious = true RETURN ip, a
@@ -53,10 +59,4 @@ Question: "Which assets have the most log entries?"
 Cypher: MATCH (a:Asset)-[:HAS_LOG]->(l:LogEntry) WITH a, count(l) AS log_count ORDER BY log_count DESC LIMIT 10 RETURN a.hostname AS asset, log_count
 
 Question: "Show me all critical severity events"
-Cypher: MATCH (l:LogEntry)<-[:HAS_LOG]-(a:Asset) WHERE l.severity = 'CRITICAL' OPTIONAL MATCH (l)-[:LOGGED_FROM]->(ip:IPAddress) RETURN l, a, ip
-
-Question: "Calculate the blast radius for web-server-01"
-Cypher: MATCH path = (a:Asset {{hostname: 'web-server-01'}})-[*1..3]-(m) RETURN path
-
-Question: "Isolate the compromised db-server-01"
-Cypher: MATCH (a:Asset {{hostname: 'db-server-01'}}) SET a.isolated = true RETURN a"""
+Cypher: MATCH (l:LogEntry)<-[:HAS_LOG]-(a:Asset) WHERE l.severity = 'CRITICAL' OPTIONAL MATCH (l)-[:LOGGED_FROM]->(ip:IPAddress) RETURN l, a, ip"""
