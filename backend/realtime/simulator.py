@@ -162,8 +162,12 @@ class LiveEventSimulator:
                 # Persist to databases
                 await _persist_event(event)
 
+                # Extract subgraph and broadcast
+                subgraph = neo4j_client.get_subgraph_for_log(event["id"])
+                payload = {"event": event, "subgraph": subgraph}
+
                 # Broadcast to all connected WebSocket clients
-                await ws_manager.broadcast("NEW_EVENT", event)
+                await ws_manager.broadcast("NEW_EVENT", payload)
 
                 self.events_generated += 1
 
@@ -173,6 +177,51 @@ class LiveEventSimulator:
             except Exception as e:
                 print(f"[WARN] Event loop error: {e}")
                 await asyncio.sleep(interval)
+
+    async def simulate_attack_burst(self):
+        """Simulate a rapid sequence of events representing a coordinated attack."""
+        actor = random.choice(THREAT_ACTORS)
+        src_ip = random.choice(ATTACKER_IPS)
+        target = random.choice(ASSETS)
+        
+        sequence = [
+            ("port_scan", "low"),
+            ("brute_force", "medium"),
+            ("brute_force", "medium"),
+            ("auth_failure", "medium"),
+            ("privilege_escalation", "high"),
+            ("malware_detected", "critical"),
+            ("data_exfil", "critical")
+        ]
+        
+        print(f"[STREAM] Simulating attack burst by {actor} from {src_ip} targeting {target}")
+        
+        for event_type, severity in sequence:
+            event = {
+                "id": str(uuid.uuid4())[:8],
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "event_type": event_type,
+                "severity": severity,
+                "source_ip": src_ip,
+                "target_asset": target,
+                "threat_actor": actor,
+                "description": f"{actor} initiated {event_type.replace('_', ' ')} against {target} from {src_ip}",
+            }
+            if event_type == "privilege_escalation":
+                cve = random.choice(CVES)
+                event["cve_id"] = cve
+                event["description"] += f" exploiting {cve}"
+                
+            await _persist_event(event)
+            
+            subgraph = neo4j_client.get_subgraph_for_log(event["id"])
+            payload = {"event": event, "subgraph": subgraph}
+            
+            await ws_manager.broadcast("NEW_EVENT", payload)
+            self.events_generated += 1
+            
+            # Short burst delay
+            await asyncio.sleep(0.5)
 
 
 # Singleton

@@ -7,7 +7,7 @@
 import { useState } from 'react';
 import StatusIndicator from './StatusIndicator';
 
-export default function Navbar({ onIngest, isIngesting, backendStatus, onSearch }) {
+export default function Navbar({ onIngest, isIngesting, backendStatus, onSearch, onSimulateAttack, isSimulating }) {
   return (
     <nav className="glass-card" style={{ borderRadius: '0 0 16px 16px', borderTop: 'none' }}>
       <div className="flex items-center justify-between px-6 py-3">
@@ -38,6 +38,29 @@ export default function Navbar({ onIngest, isIngesting, backendStatus, onSearch 
             }}
           >
             🔍 SEARCH
+          </button>
+
+          <button
+            onClick={onSimulateAttack}
+            disabled={isSimulating}
+            className="px-4 py-2.5 rounded-lg text-xs font-display tracking-widest transition-all duration-200 cursor-pointer flex items-center gap-2"
+            style={{
+              background: 'rgba(239, 68, 68, 0.1)',
+              color: '#ef4444',
+              border: '1px solid rgba(239, 68, 68, 0.2)',
+            }}
+          >
+            {isSimulating ? (
+              <>
+                <span className="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full" />
+                ATTACKING...
+              </>
+            ) : (
+              <>
+                <span>🔥</span>
+                SIMULATE ATTACK
+              </>
+            )}
           </button>
 
           <button

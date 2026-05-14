@@ -31,7 +31,7 @@ RULES:
 3. Use OPTIONAL MATCH when some connections might not exist.
 4. Limit results to 50 rows max unless the user asks for everything.
 5. For aggregations, always include the raw entities alongside counts.
-6. Never use DETACH DELETE or any destructive operations.
+6. Never use DETACH DELETE or destructive graph shape operations. SET properties like 'isolated = true' are allowed for actions.
 7. If the query is ambiguous, prefer returning more context rather than less.
 8. Only output the Cypher query, no explanation.
 
@@ -53,4 +53,10 @@ Question: "Which assets have the most log entries?"
 Cypher: MATCH (a:Asset)-[:HAS_LOG]->(l:LogEntry) WITH a, count(l) AS log_count ORDER BY log_count DESC LIMIT 10 RETURN a.hostname AS asset, log_count
 
 Question: "Show me all critical severity events"
-Cypher: MATCH (l:LogEntry)<-[:HAS_LOG]-(a:Asset) WHERE l.severity = 'CRITICAL' OPTIONAL MATCH (l)-[:LOGGED_FROM]->(ip:IPAddress) RETURN l, a, ip"""
+Cypher: MATCH (l:LogEntry)<-[:HAS_LOG]-(a:Asset) WHERE l.severity = 'CRITICAL' OPTIONAL MATCH (l)-[:LOGGED_FROM]->(ip:IPAddress) RETURN l, a, ip
+
+Question: "Calculate the blast radius for web-server-01"
+Cypher: MATCH path = (a:Asset {{hostname: 'web-server-01'}})-[*1..3]-(m) RETURN path
+
+Question: "Isolate the compromised db-server-01"
+Cypher: MATCH (a:Asset {{hostname: 'db-server-01'}}) SET a.isolated = true RETURN a"""

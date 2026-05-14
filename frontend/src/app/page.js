@@ -13,7 +13,7 @@ import ChatPanel from '../components/ChatPanel';
 import GraphPanel from '../components/GraphPanel';
 import SearchPanel from '../components/SearchPanel';
 import LiveFeed from '../components/LiveFeed';
-import { checkHealth, ingestData, fetchFullGraph } from '../lib/api';
+import { checkHealth, ingestData, fetchFullGraph, simulateAttack } from '../lib/api';
 import { ChevronUp, ChevronDown, PanelLeftClose, PanelLeft } from 'lucide-react';
 
 export default function Dashboard() {
@@ -23,6 +23,7 @@ export default function Dashboard() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isStatsExpanded, setIsStatsExpanded] = useState(true);
   const [isChatExpanded, setIsChatExpanded] = useState(true);
+  const [isSimulating, setIsSimulating] = useState(false);
 
   // Custom Split Pane State
   const [chatWidth, setChatWidth] = useState(30); // percentage
@@ -66,8 +67,21 @@ export default function Dashboard() {
     }
   };
 
+  const handleSimulateAttack = async () => {
+    setIsSimulating(true);
+    try {
+      await simulateAttack();
+    } catch (err) {
+      console.error('Failed to simulate attack:', err);
+      alert('Attack simulation failed: ' + err.message);
+    } finally {
+      // Small delay to let the animation show for at least a second
+      setTimeout(() => setIsSimulating(false), 1000);
+    }
+  };
+
   const handleLiveEvent = useCallback((type, data) => {
-    if (type === 'new_nodes' && data.subgraph) {
+    if (type === 'NEW_EVENT' && data.subgraph) {
       setGraphData(prev => {
         const nodeMap = new Map(prev.nodes.map(n => [n.id, n]));
         const linkSet = new Set(prev.links.map(l => `${l.source}-${l.target}`));
@@ -175,6 +189,8 @@ export default function Dashboard() {
             onSearch={() => setIsSearchOpen(true)} 
             onIngest={handleIngest} 
             isIngesting={isIngesting}
+            onSimulateAttack={handleSimulateAttack}
+            isSimulating={isSimulating}
           />
 
           {/* Main Dashboard Layout */}

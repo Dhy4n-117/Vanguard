@@ -25,13 +25,14 @@ export default function LiveFeed({ onNewEvent }) {
 
   const handleEvent = useCallback((type, data) => {
     if (type === 'NEW_EVENT') {
+      // payload is now { event: {...}, subgraph: {...} }
       setEvents(prev => {
-        const updated = [data, ...prev];
+        const updated = [data.event, ...prev];
         return updated.slice(0, MAX_EVENTS);
       });
 
       // Notify parent (for graph refresh)
-      if (onNewEvent) onNewEvent(data);
+      if (onNewEvent) onNewEvent(type, data);
     }
   }, [onNewEvent]);
 

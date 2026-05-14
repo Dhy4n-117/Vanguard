@@ -95,3 +95,10 @@ export async function stopStream() {
 export async function getStreamStatus() {
   return apiFetch('/api/stream/status');
 }
+
+/**
+ * Trigger an attack simulation burst.
+ */
+export async function simulateAttack() {
+  return apiFetch('/api/stream/simulate-attack', { method: 'POST' });
+}

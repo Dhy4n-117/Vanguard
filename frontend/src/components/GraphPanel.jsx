@@ -117,6 +117,8 @@ export default function GraphPanel({ graphData, onGraphUpdate }) {
     const isSelected = selectedNode?.id === node.id;
     const isExpanded = expandedNodeIds.has(node.id);
 
+    const isIsolated = node.properties?.isolated === true;
+
     // Outer pulse ring for expanded nodes
     if (isExpanded) {
       ctx.beginPath();
@@ -138,7 +140,7 @@ export default function GraphPanel({ graphData, onGraphUpdate }) {
     }
 
     // Outer glow
-    if (isHovered) {
+    if (isHovered && !isIsolated) {
       ctx.beginPath();
       ctx.arc(node.x, node.y, size + 8, 0, 2 * Math.PI);
       ctx.fillStyle = color + '30';
@@ -148,13 +150,22 @@ export default function GraphPanel({ graphData, onGraphUpdate }) {
     // Node circle
     ctx.beginPath();
     ctx.arc(node.x, node.y, size, 0, 2 * Math.PI);
-    ctx.fillStyle = isHovered || isSelected ? color : color + 'CC';
+    
+    if (isIsolated) {
+      ctx.fillStyle = '#1e293b'; // Dark gray
+      ctx.strokeStyle = '#ef4444'; // Red border
+      ctx.lineWidth = 2;
+      ctx.setLineDash([2, 2]);
+    } else {
+      ctx.fillStyle = isHovered || isSelected ? color : color + 'CC';
+      ctx.strokeStyle = color;
+      ctx.lineWidth = isHovered ? 2 : 1;
+      ctx.setLineDash([]);
+    }
+    
     ctx.fill();
-
-    // Border
-    ctx.strokeStyle = color;
-    ctx.lineWidth = isHovered ? 2 : 1;
     ctx.stroke();
+    ctx.setLineDash([]); // Reset line dash
 
     // Label (only show when zoomed in enough or hovered)
     if (globalScale > 1.5 || isHovered || isSelected) {
