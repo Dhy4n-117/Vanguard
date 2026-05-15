@@ -22,6 +22,7 @@ export default function ChatPanel({ onGraphUpdate, onClose }) {
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(true);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -69,10 +70,18 @@ export default function ChatPanel({ onGraphUpdate, onClose }) {
     <GlassCard variant="cyan" className="flex flex-col h-full relative overflow-hidden">
       {/* Header */}
       <div className="px-5 py-4 flex justify-between items-start" style={{ borderBottom: '1px solid var(--glass-border)' }}>
-        <div>
-          <h2 className="font-display text-sm font-semibold tracking-widest" style={{ color: 'var(--accent-cyan)' }}>
-            💬 THREAT INTELLIGENCE CHAT
-          </h2>
+        <div className="flex-1">
+          <div className="flex items-center gap-2">
+            <h2 className="font-display text-sm font-semibold tracking-widest" style={{ color: 'var(--accent-cyan)' }}>
+              💬 THREAT INTELLIGENCE CHAT
+            </h2>
+            <button 
+              onClick={() => setShowSuggestions(!showSuggestions)}
+              className="text-[9px] font-mono px-2 py-0.5 rounded border border-[rgba(6,182,212,0.3)] bg-[rgba(6,182,212,0.05)] text-cyan-400 hover:bg-[rgba(6,182,212,0.15)] transition-colors uppercase tracking-tighter"
+            >
+              {showSuggestions ? 'Hide Hints' : 'Show Hints'}
+            </button>
+          </div>
           <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
             Ask questions about your security data in natural language
           </p>
@@ -89,7 +98,13 @@ export default function ChatPanel({ onGraphUpdate, onClose }) {
       </div>
 
       {/* Suggested Queries */}
-      <SuggestedQueries onSelect={(q) => setInput(q)} disabled={isLoading} />
+      {showSuggestions && (
+        <SuggestedQueries onSelect={(q) => {
+          setInput(q);
+          // Auto-hide hints on select to save space
+          // setShowSuggestions(false); 
+        }} disabled={isLoading} />
+      )}
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4" style={{ minHeight: 0 }}>
