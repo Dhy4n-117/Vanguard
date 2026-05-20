@@ -15,8 +15,11 @@ import SearchPanel from '../components/SearchPanel';
 import LiveFeed from '../components/LiveFeed';
 import { checkHealth, ingestData, fetchFullGraph, simulateAttack } from '../lib/api';
 import { ChevronUp, ChevronDown, PanelLeftClose, PanelLeft } from 'lucide-react';
+import { ToastProvider, useToast } from '../components/ToastNotification';
+import ThreatTimeline from '../components/ThreatTimeline';
 
-export default function Dashboard() {
+// Wrap the dashboard content so it can use the toast hook
+function DashboardContent() {
   const [graphData, setGraphData] = useState({ nodes: [], links: [] });
   const [backendStatus, setBackendStatus] = useState('disconnected');
   const [isIngesting, setIsIngesting] = useState(false);
@@ -25,6 +28,8 @@ export default function Dashboard() {
   const [isChatExpanded, setIsChatExpanded] = useState(true);
   const [isLiveFeedExpanded, setIsLiveFeedExpanded] = useState(true);
   const [isSimulating, setIsSimulating] = useState(false);
+  
+  const { addToast } = useToast();
 
   // Custom Split Pane State
   const [chatWidth, setChatWidth] = useState(30); // percentage
@@ -83,6 +88,15 @@ export default function Dashboard() {
 
   const handleLiveEvent = useCallback((type, data) => {
     if (type === 'NEW_EVENT' && data.subgraph) {
+      // Trigger toast for critical/high events
+      if (['critical', 'high'].includes(data.event.severity)) {
+        addToast(
+          `Detected ${data.event.event_type.replace(/_/g, ' ')} on ${data.event.target_asset}`,
+          data.event.severity,
+          6000
+        );
+      }
+
       setGraphData(prev => {
         const nodeMap = new Map(prev.nodes.map(n => [n.id, n]));
         const linkSet = new Set(prev.links.map(l => `${l.source}-${l.target}`));
@@ -101,7 +115,7 @@ export default function Dashboard() {
         };
       });
     }
-  }, []);
+  }, [addToast]);
 
   const handleGraphUpdate = useCallback((subgraph) => {
     setGraphData(prev => {
@@ -262,8 +276,8 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Bottom: Live Feed with Toggle */}
-            <div className="flex flex-col gap-2">
+            {/* Bottom: Timeline and Live Feed */}
+            <div className="flex flex-col gap-2 relative z-20">
               <div className="flex justify-between items-center px-1">
                 <p className="text-[9px] font-mono tracking-[0.2em] text-[#3b82f6] opacity-40 uppercase">
                   Telemetry Stream
@@ -276,7 +290,13 @@ export default function Dashboard() {
                   {isLiveFeedExpanded ? 'Collapse Feed' : 'Expand Feed'}
                 </button>
               </div>
-              <div className={`transition-all duration-500 ease-in-out overflow-hidden ${isLiveFeedExpanded ? 'h-14 opacity-100' : 'h-0 opacity-0'}`}>
+              
+              <div className={`transition-all duration-500 ease-in-out flex flex-col gap-3 overflow-hidden ${isLiveFeedExpanded ? 'opacity-100 max-h-96' : 'max-h-0 opacity-0'}`}>
+                {/* Timeline view of log entries */}
+                <ThreatTimeline 
+                  events={graphData.nodes.filter(n => n.label === 'LogEntry').map(n => n.properties)} 
+                  isVisible={isLiveFeedExpanded}
+                />
                 <LiveFeed onNewEvent={handleLiveEvent} />
               </div>
             </div>
@@ -287,5 +307,13 @@ export default function Dashboard() {
         <SearchPanel isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
       </div>
     </SpotlightProvider>
+  );
+}
+
+export default function Dashboard() {
+  return (
+    <ToastProvider>
+      <DashboardContent />
+    </ToastProvider>
   );
 }
