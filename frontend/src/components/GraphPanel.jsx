@@ -6,10 +6,12 @@
  * Supports double-click node expansion for interactive graph exploration.
  */
 
-import { useRef, useCallback, useState, useEffect } from 'react';
+import { useRef, useCallback, useState, useEffect, useMemo } from 'react';
 import GlassCard from './GlassCard';
 import ForceGraph2D from './ForceGraph';
 import { expandNode } from '../lib/api';
+import GraphFilters from './GraphFilters';
+import NodeDetailPanel from './NodeDetailPanel';
 
 // Node color mapping by label
 const NODE_COLORS = {
@@ -36,6 +38,11 @@ export default function GraphPanel({ graphData, onGraphUpdate }) {
   const [selectedNode, setSelectedNode] = useState(null);
   const [isExpanding, setIsExpanding] = useState(false);
   const [expandedNodeIds, setExpandedNodeIds] = useState(new Set());
+  
+  // NEW: Graph Filters State
+  const [activeFilters, setActiveFilters] = useState([
+    'ThreatActor', 'IPAddress', 'Asset', 'Vulnerability', 'LogEntry'
+  ]);
 
   // Track container size using ResizeObserver
   useEffect(() => {
@@ -189,32 +196,82 @@ export default function GraphPanel({ graphData, onGraphUpdate }) {
     ctx.stroke();
   }, []);
 
+  // Filter data based on active filters
+  const { filteredData, nodeCounts } = useMemo(() => {
+    if (!graphData?.nodes) return { filteredData: { nodes: [], links: [] }, nodeCounts: {} };
+    
+    const counts = {};
+    graphData.nodes.forEach(n => {
+      counts[n.label] = (counts[n.label] || 0) + 1;
+    });
+
+    const activeNodes = graphData.nodes.filter(n => activeFilters.includes(n.label));
+    const activeIds = new Set(activeNodes.map(n => n.id));
+    
+    // Only include links where both source and target are still visible
+    const activeLinks = graphData.links.filter(l => {
+      const srcId = typeof l.source === 'object' ? l.source.id : l.source;
+      const tgtId = typeof l.target === 'object' ? l.target.id : l.target;
+      return activeIds.has(srcId) && activeIds.has(tgtId);
+    });
+
+    return {
+      filteredData: { nodes: activeNodes, links: activeLinks },
+      nodeCounts: counts
+    };
+  }, [graphData, activeFilters]);
+
+  const handleExportScreenshot = useCallback(() => {
+    if (!graphRef.current) return;
+    
+    // The canvas is rendered via react-force-graph
+    const canvas = containerRef.current?.querySelector('canvas');
+    if (!canvas) return;
+    
+    // Create a temporary link to download the image
+    const dataUrl = canvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.download = `threat-graph-export-${new Date().toISOString().slice(0,10)}.png`;
+    link.href = dataUrl;
+    link.click();
+  }, []);
+
   const hasData = graphData?.nodes?.length > 0;
 
   return (
-    <GlassCard variant="magenta" className="flex flex-col h-full overflow-hidden">
+    <GlassCard variant="magenta" className="flex flex-col h-full overflow-hidden relative">
+      {/* Export Button */}
+      {hasData && (
+        <button
+          onClick={handleExportScreenshot}
+          className="absolute top-3 right-4 z-10 text-[9px] font-mono tracking-widest uppercase py-1.5 px-3 rounded-md bg-[rgba(10,15,30,0.8)] border border-[rgba(255,255,255,0.1)] hover:border-white hover:bg-[rgba(255,255,255,0.1)] transition-all flex items-center gap-1.5"
+          style={{ color: '#e2e8f0' }}
+        >
+          📸 EXPORT
+        </button>
+      )}
+
       {/* Header */}
-      <div className="px-5 py-4 flex flex-wrap items-center justify-between gap-3" style={{ borderBottom: '1px solid var(--glass-border)' }}>
+      <div className="px-5 py-3 flex flex-wrap items-center justify-between gap-3 pr-24" style={{ borderBottom: '1px solid var(--glass-border)' }}>
         <div>
           <h2 className="font-display text-sm font-semibold tracking-widest" style={{ color: 'var(--accent-magenta)' }}>
             🔮 THREAT GRAPH
           </h2>
           <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
-            {hasData ? `${graphData.nodes.length} nodes · ${graphData.links.length} edges` : 'No data — ingest to populate'}
+            {hasData ? `${filteredData.nodes.length} nodes · ${filteredData.links.length} edges` : 'No data — ingest to populate'}
             {isExpanding && ' · Expanding...'}
           </p>
         </div>
-
-        {/* Legend */}
-        <div className="flex flex-wrap gap-3">
-          {Object.entries(NODE_COLORS).filter(([k]) => k !== 'LogEntry').map(([label, color]) => (
-            <div key={label} className="flex items-center gap-1">
-              <span className="w-2.5 h-2.5 rounded-full" style={{ background: color }} />
-              <span className="text-[10px] font-mono" style={{ color: 'var(--text-muted)' }}>{label.replace(/([A-Z])/g, ' $1').trim()}</span>
-            </div>
-          ))}
-        </div>
       </div>
+
+      {/* Graph Filters */}
+      {hasData && (
+        <GraphFilters 
+          activeFilters={activeFilters} 
+          onFilterChange={setActiveFilters} 
+          nodeCounts={nodeCounts} 
+        />
+      )}
 
       {/* Expansion hint */}
       {hasData && (
@@ -231,7 +288,7 @@ export default function GraphPanel({ graphData, onGraphUpdate }) {
           {hasData ? (
             <ForceGraph2D
               ref={graphRef}
-              graphData={graphData}
+              graphData={filteredData}
               width={dimensions.width}
               height={dimensions.height}
               backgroundColor="transparent"
@@ -266,43 +323,14 @@ export default function GraphPanel({ graphData, onGraphUpdate }) {
         </div>
       </div>
 
-      {/* Selected / Hovered node detail panel */}
-      {(selectedNode || hoveredNode) && (
-        <div className="px-5 py-3 animate-fade-in-up" style={{ borderTop: '1px solid var(--glass-border)', background: 'var(--bg-elevated)' }}>
-          {(() => {
-            const node = selectedNode || hoveredNode;
-            const isExp = expandedNodeIds.has(node.id);
-            return (
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full" style={{ background: NODE_COLORS[node.label] }} />
-                  <span className="font-mono text-xs font-semibold" style={{ color: NODE_COLORS[node.label] }}>
-                    {node.label}
-                  </span>
-                  <span className="font-mono text-xs" style={{ color: 'var(--text-primary)' }}>
-                    {node.name}
-                  </span>
-                  {isExp && (
-                    <span className="text-[9px] font-mono px-1.5 py-0.5 rounded" style={{ background: 'var(--accent-cyan-dim)', color: 'var(--accent-cyan)' }}>
-                      EXPANDED
-                    </span>
-                  )}
-                </div>
-                {!isExp && selectedNode && (
-                  <button
-                    onClick={() => handleNodeDoubleClick(node)}
-                    disabled={isExpanding}
-                    className="text-[10px] font-mono px-3 py-1 rounded-lg cursor-pointer transition-colors"
-                    style={{ background: 'var(--accent-cyan-dim)', color: 'var(--accent-cyan)', border: '1px solid rgba(6, 182, 212, 0.2)' }}
-                  >
-                    {isExpanding ? 'EXPANDING...' : 'EXPAND'}
-                  </button>
-                )}
-              </div>
-            );
-          })()}
-        </div>
-      )}
+      {/* Selected Node Detail Panel */}
+      <NodeDetailPanel 
+        node={selectedNode}
+        graphData={graphData}
+        onClose={() => setSelectedNode(null)}
+        onExpand={handleNodeDoubleClick}
+        isExpanding={isExpanding}
+      />
     </GlassCard>
   );
 }
