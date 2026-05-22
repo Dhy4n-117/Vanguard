@@ -17,6 +17,10 @@ import { checkHealth, ingestData, fetchFullGraph, simulateAttack } from '../lib/
 import { ChevronUp, ChevronDown, PanelLeftClose, PanelLeft } from 'lucide-react';
 import { ToastProvider, useToast } from '../components/ToastNotification';
 import ThreatTimeline from '../components/ThreatTimeline';
+import KeyboardShortcuts from '../components/KeyboardShortcuts';
+import AttackPlaybooks from '../components/AttackPlaybooks';
+import AnalyticsDashboard from '../components/AnalyticsDashboard';
+import NetworkTopology from '../components/NetworkTopology';
 
 // Wrap the dashboard content so it can use the toast hook
 function DashboardContent() {
@@ -29,6 +33,11 @@ function DashboardContent() {
   const [isLiveFeedExpanded, setIsLiveFeedExpanded] = useState(true);
   const [isSimulating, setIsSimulating] = useState(false);
   
+  // New Modals State
+  const [isPlaybooksOpen, setIsPlaybooksOpen] = useState(false);
+  const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(false);
+  const [isTopologyOpen, setIsTopologyOpen] = useState(false);
+
   const { addToast } = useToast();
 
   // Custom Split Pane State
@@ -73,10 +82,13 @@ function DashboardContent() {
     }
   };
 
-  const handleSimulateAttack = async () => {
+  const handleSimulateAttack = async (playbook = null) => {
     setIsSimulating(true);
+    if (playbook) {
+      addToast(`Initiating playbook: ${playbook.name}`, playbook.severity, 4000);
+    }
     try {
-      await simulateAttack();
+      await simulateAttack(); // Send simulation request
     } catch (err) {
       console.error('Failed to simulate attack:', err);
       alert('Attack simulation failed: ' + err.message);
@@ -85,6 +97,13 @@ function DashboardContent() {
       setTimeout(() => setIsSimulating(false), 1000);
     }
   };
+
+  const handleCloseAll = useCallback(() => {
+    setIsSearchOpen(false);
+    setIsPlaybooksOpen(false);
+    setIsAnalyticsOpen(false);
+    setIsTopologyOpen(false);
+  }, []);
 
   const handleLiveEvent = useCallback((type, data) => {
     if (type === 'NEW_EVENT' && data.subgraph) {
@@ -204,8 +223,10 @@ function DashboardContent() {
             onSearch={() => setIsSearchOpen(true)} 
             onIngest={handleIngest} 
             isIngesting={isIngesting}
-            onSimulateAttack={handleSimulateAttack}
+            onSimulateAttack={() => setIsPlaybooksOpen(true)}
             isSimulating={isSimulating}
+            onOpenAnalytics={() => setIsAnalyticsOpen(true)}
+            onOpenTopology={() => setIsTopologyOpen(true)}
           />
 
           {/* Main Dashboard Layout */}
@@ -305,7 +326,38 @@ function DashboardContent() {
 
         {/* Semantic Search Modal */}
         <SearchPanel isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+        
+        {/* Playbooks Modal */}
+        <AttackPlaybooks 
+          isOpen={isPlaybooksOpen} 
+          onClose={() => setIsPlaybooksOpen(false)} 
+          onSelectPlaybook={handleSimulateAttack} 
+        />
+        
+        {/* Analytics Dashboard */}
+        <AnalyticsDashboard 
+          isOpen={isAnalyticsOpen} 
+          onClose={() => setIsAnalyticsOpen(false)} 
+          graphData={graphData} 
+        />
+
+        {/* Network Topology */}
+        <NetworkTopology 
+          isOpen={isTopologyOpen} 
+          onClose={() => setIsTopologyOpen(false)} 
+          graphData={graphData} 
+        />
       </div>
+
+      {/* Global Keyboard Shortcuts */}
+      <KeyboardShortcuts 
+        onSearch={() => setIsSearchOpen(true)}
+        onSimulateAttack={() => setIsPlaybooksOpen(true)}
+        onIngest={handleIngest}
+        onToggleChat={() => setIsChatExpanded(prev => !prev)}
+        onToggleStats={() => setIsStatsExpanded(prev => !prev)}
+        onCloseAll={handleCloseAll}
+      />
     </SpotlightProvider>
   );
 }

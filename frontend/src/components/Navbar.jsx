@@ -7,7 +7,10 @@
 import { useState } from 'react';
 import StatusIndicator from './StatusIndicator';
 
-export default function Navbar({ onIngest, isIngesting, backendStatus, onSearch, onSimulateAttack, isSimulating }) {
+export default function Navbar({ 
+  onIngest, isIngesting, backendStatus, onSearch, 
+  onSimulateAttack, isSimulating, onOpenAnalytics, onOpenTopology 
+}) {
   return (
     <nav className="glass-card" style={{ borderRadius: '0 0 16px 16px', borderTop: 'none' }}>
       <div className="flex items-center justify-between px-6 py-3">
@@ -27,6 +30,30 @@ export default function Navbar({ onIngest, isIngesting, backendStatus, onSearch,
         {/* Actions */}
         <div className="flex items-center gap-4">
           <StatusIndicator status={backendStatus} />
+
+          <button
+            onClick={onOpenAnalytics}
+            className="px-4 py-2.5 rounded-lg text-xs font-display tracking-widest transition-all duration-200 cursor-pointer"
+            style={{
+              background: 'rgba(168, 85, 247, 0.1)',
+              color: 'var(--accent-purple)',
+              border: '1px solid rgba(168, 85, 247, 0.2)',
+            }}
+          >
+            📊 ANALYTICS
+          </button>
+
+          <button
+            onClick={onOpenTopology}
+            className="px-4 py-2.5 rounded-lg text-xs font-display tracking-widest transition-all duration-200 cursor-pointer"
+            style={{
+              background: 'rgba(59, 130, 246, 0.1)',
+              color: 'var(--accent-blue)',
+              border: '1px solid rgba(59, 130, 246, 0.2)',
+            }}
+          >
+            🌐 TOPOLOGY
+          </button>
 
           <button
             onClick={onSearch}
@@ -58,7 +85,7 @@ export default function Navbar({ onIngest, isIngesting, backendStatus, onSearch,
             ) : (
               <>
                 <span>🔥</span>
-                SIMULATE ATTACK
+                ATTACK PLAYBOOKS
               </>
             )}
           </button>
