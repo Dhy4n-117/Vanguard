@@ -1,8 +1,9 @@
-# EditorConfig — Consistent coding styles across editors
+# EditorConfig — Consistent coding styles across editors and IDEs
 # https://editorconfig.org
 
 root = true
 
+# ─── Default (all files) ──────────────────────────────────
 [*]
 charset = utf-8
 end_of_line = lf
@@ -11,12 +12,35 @@ indent_size = 2
 insert_final_newline = true
 trim_trailing_whitespace = true
 
+# ─── JavaScript / JSX ─────────────────────────────────────
+[*.{js,jsx,ts,tsx}]
+indent_size = 2
+
+# ─── JSON ─────────────────────────────────────────────────
+[*.json]
+indent_size = 2
+
+# ─── CSS / SCSS ───────────────────────────────────────────
+[*.{css,scss}]
+indent_size = 2
+
+# ─── YAML ─────────────────────────────────────────────────
+[*.{yml,yaml}]
+indent_size = 2
+
+# ─── Python ───────────────────────────────────────────────
 [*.py]
 indent_size = 4
 max_line_length = 120
 
+# ─── Markdown ─────────────────────────────────────────────
 [*.md]
 trim_trailing_whitespace = false
 
+# ─── Makefile ─────────────────────────────────────────────
 [Makefile]
 indent_style = tab
+
+# ─── Docker ───────────────────────────────────────────────
+[Dockerfile*]
+indent_size = 2
