@@ -88,6 +88,7 @@ from backend.routes.graph import router as graph_router
 from backend.routes.search import router as search_router
 from backend.routes.stream import router as stream_router
 from backend.routes.pipeline import router as pipeline_router
+from backend.routes.report import router as report_router
 
 app.include_router(ingest_router, tags=["Ingestion"])
 app.include_router(query_router, tags=["Query"])
@@ -95,6 +96,7 @@ app.include_router(graph_router, tags=["Graph"])
 app.include_router(search_router, tags=["Search"])
 app.include_router(stream_router, tags=["Streaming"])
 app.include_router(pipeline_router, tags=["Pipeline"])
+app.include_router(report_router, tags=["Report"])
 
 
 # ─── Root ─────────────────────────────────────────────────
