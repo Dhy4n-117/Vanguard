@@ -24,7 +24,6 @@
 
 Vanguard Sentinel ingests raw server logs, extracts cybersecurity entities (Threat Actors, IPs, Assets, Vulnerabilities), builds a knowledge graph in **Neo4j**, enables semantic search via **ChromaDB**, and exposes a natural-language **GraphRAG** query interface powered by **LangChain + local AI (Ollama)** — all wrapped in a cyberpunk-inspired glassmorphism frontend.
 
-![](Run.png)
 
 ---
 
