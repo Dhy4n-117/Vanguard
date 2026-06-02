@@ -13,7 +13,7 @@ import ChatPanel from '../components/ChatPanel';
 import GraphPanel from '../components/GraphPanel';
 import SearchPanel from '../components/SearchPanel';
 import LiveFeed from '../components/LiveFeed';
-import { checkHealth, ingestData, fetchFullGraph, simulateAttack } from '../lib/api';
+import { checkHealth, ingestData, fetchFullGraph, simulateAttack, downloadReport } from '../lib/api';
 import { ChevronUp, ChevronDown, PanelLeftClose, PanelLeft } from 'lucide-react';
 import { ToastProvider, useToast } from '../components/ToastNotification';
 import ThreatTimeline from '../components/ThreatTimeline';
@@ -21,6 +21,8 @@ import KeyboardShortcuts from '../components/KeyboardShortcuts';
 import AttackPlaybooks from '../components/AttackPlaybooks';
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
 import NetworkTopology from '../components/NetworkTopology';
+import SidebarNav from '../components/SidebarNav';
+import { PanelErrorBoundary } from '../components/ErrorBoundary';
 
 // Wrap the dashboard content so it can use the toast hook
 function DashboardContent() {
@@ -37,6 +39,8 @@ function DashboardContent() {
   const [isPlaybooksOpen, setIsPlaybooksOpen] = useState(false);
   const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(false);
   const [isTopologyOpen, setIsTopologyOpen] = useState(false);
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
+  const [activeView, setActiveView] = useState('dashboard');
 
   const { addToast } = useToast();
 
@@ -104,6 +108,25 @@ function DashboardContent() {
     setIsAnalyticsOpen(false);
     setIsTopologyOpen(false);
   }, []);
+
+  const handleSidebarNavigate = useCallback((viewId) => {
+    setActiveView(viewId);
+    switch (viewId) {
+      case 'analytics': setIsAnalyticsOpen(true); break;
+      case 'topology': setIsTopologyOpen(true); break;
+      case 'playbooks': setIsPlaybooksOpen(true); break;
+      case 'report':
+        downloadReport()
+          .then(() => addToast('Incident report downloaded successfully', 'medium', 4000))
+          .catch(() => addToast('Failed to generate report — is backend running?', 'high', 5000));
+        break;
+      case 'shortcuts':
+        // The KeyboardShortcuts component handles the '?' overlay
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: '?' }));
+        break;
+      default: break;
+    }
+  }, [addToast]);
 
   const handleLiveEvent = useCallback((type, data) => {
     if (type === 'NEW_EVENT' && data.subgraph) {
@@ -198,22 +221,19 @@ function DashboardContent() {
     };
   }, [isDragging]);
 
-  const isSidebarExpanded = false; // Left menu is collapsed by default
-
   return (
     <SpotlightProvider>
       <div className="flex h-screen w-screen overflow-hidden text-[#f1f5f9] font-body relative" style={{ backgroundColor: 'var(--bg-base)' }}>
         {/* Transparent Overlay to capture mouse events during drag (prevents canvas from eating them) */}
         {isDragging && <div className="absolute inset-0 z-[100]" />}
 
-        {/* Left Sidebar (Pillar) */}
-        <div className={`transition-all duration-500 ease-in-out ${isSidebarExpanded ? 'w-64' : 'w-16'} border-r flex flex-col relative`} style={{ borderColor: 'var(--glass-border)', background: 'rgba(10, 15, 25, 0.6)', zIndex: 40 }}>
-          <div className="flex-1 overflow-hidden hover:overflow-y-auto">
-            {/* Nav content would go here */}
-          </div>
-          {/* Active status indicator */}
-          <div className="h-1" style={{ background: backendStatus === 'connected' ? 'var(--accent-emerald)' : 'var(--accent-red)' }} />
-        </div>
+        {/* Left Sidebar Navigation */}
+        <SidebarNav
+          isExpanded={isSidebarExpanded}
+          onToggle={() => setIsSidebarExpanded(prev => !prev)}
+          onNavigate={handleSidebarNavigate}
+          activeView={activeView}
+        />
 
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col min-w-0">
@@ -273,7 +293,9 @@ function DashboardContent() {
                 className="h-full flex-shrink-0 min-w-0 relative transition-all duration-500 ease-in-out"
               >
                 <div className="absolute inset-0 min-w-[300px]">
-                  <ChatPanel onGraphUpdate={handleGraphUpdate} onClose={() => setIsChatExpanded(false)} />
+                  <PanelErrorBoundary panelName="Chat">
+                    <ChatPanel onGraphUpdate={handleGraphUpdate} onClose={() => setIsChatExpanded(false)} />
+                  </PanelErrorBoundary>
                 </div>
               </div>
 
@@ -292,7 +314,9 @@ function DashboardContent() {
               {/* Right: Graph Panel */}
               <div className={`flex-1 h-full min-w-0 relative overflow-hidden ${isChatExpanded ? 'ml-2' : 'ml-0'}`}>
                 <div className="absolute inset-0">
-                  <GraphPanel graphData={graphData} onGraphUpdate={setGraphData} />
+                  <PanelErrorBoundary panelName="Graph">
+                    <GraphPanel graphData={graphData} onGraphUpdate={setGraphData} />
+                  </PanelErrorBoundary>
                 </div>
               </div>
             </div>
