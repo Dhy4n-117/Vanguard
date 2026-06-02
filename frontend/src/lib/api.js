@@ -102,3 +102,27 @@ export async function getStreamStatus() {
 export async function simulateAttack() {
   return apiFetch('/api/stream/simulate-attack', { method: 'POST' });
 }
+
+/**
+ * Generate an incident report from the current graph state.
+ */
+export async function generateReport() {
+  return apiFetch('/api/report/generate');
+}
+
+/**
+ * Download the incident report as a markdown file.
+ */
+export async function downloadReport() {
+  const data = await generateReport();
+  const blob = new Blob([data.report], { type: 'text/markdown' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `sentinel-report-${new Date().toISOString().slice(0, 10)}.md`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  return data;
+}
