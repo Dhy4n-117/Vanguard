@@ -8,13 +8,14 @@
 import { useState } from 'react';
 import { 
   LayoutDashboard, BarChart3, Globe, Swords, FileText, 
-  Settings, Shield, HelpCircle, ChevronRight, ChevronLeft 
+  Settings, Shield, HelpCircle, ChevronRight, ChevronLeft, Map 
 } from 'lucide-react';
 
 const NAV_ITEMS = [
   { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', section: 'main' },
   { id: 'analytics', icon: BarChart3, label: 'Analytics', section: 'view' },
   { id: 'topology', icon: Globe, label: 'Topology', section: 'view' },
+  { id: 'geomap', icon: Map, label: 'Geo Map', section: 'view' },
   { id: 'playbooks', icon: Swords, label: 'Playbooks', section: 'view' },
   { id: 'report', icon: FileText, label: 'Report', section: 'action' },
   { id: 'shortcuts', icon: HelpCircle, label: 'Shortcuts', section: 'info' },

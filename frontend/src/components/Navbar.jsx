@@ -9,7 +9,7 @@ import StatusIndicator from './StatusIndicator';
 
 export default function Navbar({ 
   onIngest, isIngesting, backendStatus, onSearch, 
-  onSimulateAttack, isSimulating, onOpenAnalytics, onOpenTopology 
+  onSimulateAttack, isSimulating, onOpenAnalytics, onOpenTopology, onOpenGeoMap 
 }) {
   return (
     <nav className="glass-card" style={{ borderRadius: '0 0 16px 16px', borderTop: 'none' }}>
@@ -53,6 +53,18 @@ export default function Navbar({
             }}
           >
             🌐 TOPOLOGY
+          </button>
+
+          <button
+            onClick={onOpenGeoMap}
+            className="px-4 py-2.5 rounded-lg text-xs font-display tracking-widest transition-all duration-200 cursor-pointer"
+            style={{
+              background: 'rgba(16, 185, 129, 0.1)',
+              color: 'var(--accent-emerald)',
+              border: '1px solid rgba(16, 185, 129, 0.2)',
+            }}
+          >
+            🌍 GEO MAP
           </button>
 
           <button

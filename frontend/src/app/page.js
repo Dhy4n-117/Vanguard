@@ -21,6 +21,7 @@ import KeyboardShortcuts from '../components/KeyboardShortcuts';
 import AttackPlaybooks from '../components/AttackPlaybooks';
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
 import NetworkTopology from '../components/NetworkTopology';
+import GeoThreatMap from '../components/GeoThreatMap';
 import SidebarNav from '../components/SidebarNav';
 import { PanelErrorBoundary } from '../components/ErrorBoundary';
 
@@ -39,6 +40,7 @@ function DashboardContent() {
   const [isPlaybooksOpen, setIsPlaybooksOpen] = useState(false);
   const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(false);
   const [isTopologyOpen, setIsTopologyOpen] = useState(false);
+  const [isGeoMapOpen, setIsGeoMapOpen] = useState(false);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const [activeView, setActiveView] = useState('dashboard');
 
@@ -107,6 +109,7 @@ function DashboardContent() {
     setIsPlaybooksOpen(false);
     setIsAnalyticsOpen(false);
     setIsTopologyOpen(false);
+    setIsGeoMapOpen(false);
   }, []);
 
   const handleSidebarNavigate = useCallback((viewId) => {
@@ -114,6 +117,7 @@ function DashboardContent() {
     switch (viewId) {
       case 'analytics': setIsAnalyticsOpen(true); break;
       case 'topology': setIsTopologyOpen(true); break;
+      case 'geomap': setIsGeoMapOpen(true); break;
       case 'playbooks': setIsPlaybooksOpen(true); break;
       case 'report':
         downloadReport()
@@ -247,6 +251,7 @@ function DashboardContent() {
             isSimulating={isSimulating}
             onOpenAnalytics={() => setIsAnalyticsOpen(true)}
             onOpenTopology={() => setIsTopologyOpen(true)}
+            onOpenGeoMap={() => setIsGeoMapOpen(true)}
           />
 
           {/* Main Dashboard Layout */}
@@ -369,6 +374,13 @@ function DashboardContent() {
         <NetworkTopology 
           isOpen={isTopologyOpen} 
           onClose={() => setIsTopologyOpen(false)} 
+          graphData={graphData} 
+        />
+
+        {/* Geo-Threat Map */}
+        <GeoThreatMap 
+          isOpen={isGeoMapOpen} 
+          onClose={() => setIsGeoMapOpen(false)} 
           graphData={graphData} 
         />
       </div>
