@@ -36,7 +36,6 @@ export const metadata = {
     follow: true,
   },
   manifest: "/manifest.json",
-  themeColor: "#0a0f19",
 };
 
 export const viewport = {
@@ -50,7 +49,6 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="apple-touch-icon" href="/icon-192.png" />
       </head>
       <body>{children}</body>
     </html>
