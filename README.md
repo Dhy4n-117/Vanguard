@@ -39,6 +39,7 @@ Vanguard Sentinel ingests raw server logs, extracts cybersecurity entities (Thre
 ### Visualization & Analytics
 - **📈 Analytics Dashboard** — Full-screen analytics view with severity distribution charts, top targeted assets, node type breakdown, attack frequency sparklines, and threat actor activity tables — all built with pure Canvas/SVG.
 - **🌐 Network Topology Map** — Zone-based network layout (External → DMZ → Internal → Data Layer) with color-coded bezier connection paths and smart node classification.
+- **🌍 Geo-Threat Map** — Interactive Leaflet.js world map with CartoDB dark tiles showing threat actor origins (red), protected assets (blue), and IP addresses (amber) with animated attack-path arcs across the globe.
 - **🔍 Semantic Log Search** — Vector-based search modal over raw log text via ChromaDB.
 - **⏱️ Threat Timeline** — Chronological horizontal timeline of security events for incident sequencing.
 
