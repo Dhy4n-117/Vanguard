@@ -47,6 +47,41 @@ const ASSET_LOCATIONS = {
   'dns-server':      { lat: 1.3521, lng: 103.8198, city: 'Singapore', country: 'Singapore' },
   'backup-server':   { lat: -33.8688, lng: 151.2093, city: 'Sydney', country: 'Australia' },
 };
+// Fallback cities for unknown entities — ensures markers always land on real locations
+const FALLBACK_CITIES = [
+  { lat: 55.7558, lng: 37.6173, city: 'Moscow', country: 'Russia' },
+  { lat: 39.9042, lng: 116.4074, city: 'Beijing', country: 'China' },
+  { lat: 28.6139, lng: 77.2090, city: 'New Delhi', country: 'India' },
+  { lat: -23.5505, lng: -46.6333, city: 'São Paulo', country: 'Brazil' },
+  { lat: 35.6762, lng: 139.6503, city: 'Tokyo', country: 'Japan' },
+  { lat: 41.0082, lng: 28.9784, city: 'Istanbul', country: 'Turkey' },
+  { lat: 30.0444, lng: 31.2357, city: 'Cairo', country: 'Egypt' },
+  { lat: 52.5200, lng: 13.4050, city: 'Berlin', country: 'Germany' },
+  { lat: 37.5665, lng: 126.9780, city: 'Seoul', country: 'South Korea' },
+  { lat: 19.4326, lng: -99.1332, city: 'Mexico City', country: 'Mexico' },
+  { lat: 48.8566, lng: 2.3522, city: 'Paris', country: 'France' },
+  { lat: -1.2921, lng: 36.8219, city: 'Nairobi', country: 'Kenya' },
+  { lat: 1.3521, lng: 103.8198, city: 'Singapore', country: 'Singapore' },
+  { lat: 14.5995, lng: 120.9842, city: 'Manila', country: 'Philippines' },
+  { lat: 51.5074, lng: -0.1278, city: 'London', country: 'UK' },
+  { lat: -33.8688, lng: 151.2093, city: 'Sydney', country: 'Australia' },
+  { lat: 34.0522, lng: -118.2437, city: 'Los Angeles', country: 'USA' },
+  { lat: 55.6761, lng: 12.5683, city: 'Copenhagen', country: 'Denmark' },
+  { lat: 22.3193, lng: 114.1694, city: 'Hong Kong', country: 'China' },
+  { lat: 59.3293, lng: 18.0686, city: 'Stockholm', country: 'Sweden' },
+];
+
+/**
+ * Simple string hash that produces a consistent index into FALLBACK_CITIES.
+ */
+function hashToCity(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash |= 0; // Convert to 32-bit integer
+  }
+  return FALLBACK_CITIES[Math.abs(hash) % FALLBACK_CITIES.length];
+}
 
 /**
  * Resolve a graph node to a geographic coordinate.
@@ -61,17 +96,18 @@ export function resolveNodeLocation(node) {
   if (node.label === 'ThreatActor') {
     const key = Object.keys(THREAT_ACTOR_LOCATIONS).find(k => name.includes(k));
     if (key) return { ...THREAT_ACTOR_LOCATIONS[key], type: 'threat' };
-    // Fallback: random location for unknown actors
-    return { lat: 55.7 + Math.random() * 10, lng: 37.6 + Math.random() * 20, city: 'Unknown', country: 'Unknown', type: 'threat' };
+    // Fallback: deterministic real city based on name hash
+    const fallback = hashToCity(name);
+    return { ...fallback, type: 'threat' };
   }
 
   // IP Addresses — match by IP
   if (node.label === 'IPAddress') {
     const ip = node.properties?.address || name;
     if (IP_LOCATIONS[ip]) return { ...IP_LOCATIONS[ip], type: 'ip' };
-    // Generate deterministic location from IP hash
-    const hash = ip.split('.').reduce((a, b) => a + parseInt(b || 0), 0);
-    return { lat: (hash % 140) - 70, lng: (hash * 7 % 360) - 180, city: ip, country: 'Resolved', type: 'ip' };
+    // Fallback: deterministic real city based on IP hash
+    const fallback = hashToCity(ip);
+    return { lat: fallback.lat + (Math.abs(ip.charCodeAt(0) % 5) * 0.3), lng: fallback.lng + (Math.abs(ip.charCodeAt(ip.length-1) % 5) * 0.3), city: ip, country: fallback.country, type: 'ip' };
   }
 
   // Assets — match by hostname
