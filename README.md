@@ -24,6 +24,10 @@
 
 Vanguard Sentinel ingests raw server logs, extracts cybersecurity entities (Threat Actors, IPs, Assets, Vulnerabilities), builds a knowledge graph in **Neo4j**, enables semantic search via **ChromaDB**, and exposes a natural-language **GraphRAG** query interface powered by **LangChain + local AI (Ollama)** — all wrapped in a cyberpunk-inspired glassmorphism frontend.
 
+## 🎥 Dashboard in Action
+*(Add your 15-second looping GIF here showing the interactive graphs, geo-threat maps, and live attack playbooks)*
+`![Demo](Vanguard_Demo.gif)`
+
 
 ---
 
@@ -61,28 +65,60 @@ Vanguard Sentinel ingests raw server logs, extracts cybersecurity entities (Thre
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│  Frontend (Next.js + Tailwind CSS + react-force-graph-2d)   │
-│  ├── SidebarNav          → Navigation pillar                │
-│  ├── GraphPanel          → Force-directed threat graph      │
-│  ├── ChatPanel           → Agentic AI chat interface        │
-│  ├── AnalyticsDashboard  → Charts & metrics overlay         │
-│  ├── NetworkTopology     → Zone-based network map           │
-│  ├── AttackPlaybooks     → Predefined attack scenarios      │
-│  └── KeyboardShortcuts   → Global hotkey system             │
-├─────────────────────────────────────────────────────────────┤
-│  Backend (Python FastAPI)                                   │
-│  ├── Ingestion Pipeline (Log Parser → Entity Extractor)     │
-│  ├── GraphRAG Engine (LangChain + Ollama/Gemini)            │
-│  ├── Report Generator (Incident Report API)                 │
-│  ├── Real-Time Simulator (WebSocket Event Stream)           │
-│  └── REST API Layer                                         │
-├─────────────────────────────────────────────────────────────┤
-│  Data Layer                                                 │
-│  ├── Neo4j Community Edition (Docker) — Knowledge Graph     │
-│  └── ChromaDB (Embedded) — Vector Store                     │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    %% Styling
+    classDef frontend fill:#1e293b,stroke:#3b82f6,stroke-width:2px,color:#f8fafc
+    classDef backend fill:#1e293b,stroke:#10b981,stroke-width:2px,color:#f8fafc
+    classDef data fill:#1e293b,stroke:#8b5cf6,stroke-width:2px,color:#f8fafc
+    classDef external fill:#0f172a,stroke:#475569,stroke-width:1px,color:#94a3b8,stroke-dasharray: 5 5
+
+    %% Frontend Components
+    subgraph Frontend["Frontend (Next.js)"]
+        UI[Dashboard UI]
+        Graph[Interactive Threat Graph]
+        Geo[Geo-Threat Map]
+        Chat[Agentic AI Chat]
+    end
+    class Frontend,UI,Graph,Geo,Chat frontend
+
+    %% Backend Components
+    subgraph Backend["Backend (FastAPI)"]
+        API[REST API & WebSockets]
+        Parser[Log Ingestion Pipeline]
+        RAG[GraphRAG Engine]
+        LLM[LangChain Orchestrator]
+    end
+    class Backend,API,Parser,RAG,LLM backend
+
+    %% Data Layer
+    subgraph Data["Data Layer"]
+        Neo4j[(Neo4j Knowledge Graph)]
+        Chroma[(ChromaDB Vector Store)]
+    end
+    class Data,Neo4j,Chroma data
+
+    %% External
+    LocalAI[[Ollama / Llama3]]
+    RawLogs[Raw Security Logs]
+    
+    class LocalAI,RawLogs external
+
+    %% Connections
+    RawLogs -->|Ingest| Parser
+    Parser -->|Entities & Relations| Neo4j
+    Parser -->|Log Embeddings| Chroma
+    
+    UI <-->|HTTP/WS| API
+    Graph <-->|Cypher| API
+    Geo <-->|Geo Mapping| API
+    Chat <-->|Natural Language| API
+    
+    API <--> RAG
+    RAG <--> LLM
+    LLM <--> Neo4j
+    LLM <--> Chroma
+    LLM <--> LocalAI
 ```
 
 ---
@@ -191,6 +227,12 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) to access the dashboard.
+
+### 🧪 Loading Mock Data (For Evaluators)
+If you're evaluating this project and want to see a populated dashboard immediately:
+1. Open the dashboard in your browser.
+2. Hit `Ctrl + Shift + I` or click **"Ingest Logs"** in the top navigation to parse the `data/mock_logs` and build the knowledge graph.
+3. Open the **Playbooks** modal (`Ctrl + Shift + A`) and run a simulated attack (like APT28 or Ransomware) to see the Geo-Threat map and real-time visualization in action.
 
 ---
 
