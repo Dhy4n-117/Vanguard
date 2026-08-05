@@ -345,3 +345,33 @@ body::after {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.4; transform: scale(1.5); }
 }
+
+/* ─── Cyber Glitch Effect ────────────────────────────────── */
+
+@keyframes glitch-anim {
+  0% { clip-path: inset(10% 0 30% 0); transform: translate(-2px, 2px); }
+  20% { clip-path: inset(80% 0 5% 0); transform: translate(2px, -2px); }
+  40% { clip-path: inset(30% 0 50% 0); transform: translate(-2px, -2px); }
+  60% { clip-path: inset(60% 0 10% 0); transform: translate(2px, 2px); }
+  80% { clip-path: inset(15% 0 80% 0); transform: translate(-1px, 1px); }
+  100% { clip-path: inset(50% 0 30% 0); transform: translate(1px, -1px); }
+}
+
+.cyber-glitch-hover {
+  position: relative;
+  transition: all var(--transition-fast);
+}
+
+.cyber-glitch-hover:hover::before {
+  content: attr(data-text);
+  position: absolute;
+  left: -2px;
+  text-shadow: 2px 0 var(--accent-red);
+  top: 0;
+  color: white;
+  background: var(--bg-base);
+  overflow: hidden;
+  clip-path: inset(0 0 0 0);
+  animation: glitch-anim 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite;
+  z-index: 10;
+}
