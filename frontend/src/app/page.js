@@ -24,6 +24,10 @@ import NetworkTopology from '../components/NetworkTopology';
 import GeoThreatMap from '../components/GeoThreatMap';
 import SidebarNav from '../components/SidebarNav';
 import { PanelErrorBoundary } from '../components/ErrorBoundary';
+import MitreAttackPanel from '../components/MitreAttackPanel';
+import ThreatIntelPanel from '../components/ThreatIntelPanel';
+import AlertCorrelation from '../components/AlertCorrelation';
+import IncidentSummaryCard from '../components/IncidentSummaryCard';
 
 // Wrap the dashboard content so it can use the toast hook
 function DashboardContent() {
@@ -41,8 +45,11 @@ function DashboardContent() {
   const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(false);
   const [isTopologyOpen, setIsTopologyOpen] = useState(false);
   const [isGeoMapOpen, setIsGeoMapOpen] = useState(false);
+  const [isMitreOpen, setIsMitreOpen] = useState(false);
+  const [isCorrelationOpen, setIsCorrelationOpen] = useState(false);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const [activeView, setActiveView] = useState('dashboard');
+  const [threatIntelNode, setThreatIntelNode] = useState(null);
 
   const { addToast } = useToast();
 
@@ -110,6 +117,9 @@ function DashboardContent() {
     setIsAnalyticsOpen(false);
     setIsTopologyOpen(false);
     setIsGeoMapOpen(false);
+    setIsMitreOpen(false);
+    setIsCorrelationOpen(false);
+    setThreatIntelNode(null);
   }, []);
 
   const handleSidebarNavigate = useCallback((viewId) => {
@@ -118,14 +128,15 @@ function DashboardContent() {
       case 'analytics': setIsAnalyticsOpen(true); break;
       case 'topology': setIsTopologyOpen(true); break;
       case 'geomap': setIsGeoMapOpen(true); break;
+      case 'mitre': setIsMitreOpen(true); break;
       case 'playbooks': setIsPlaybooksOpen(true); break;
+      case 'correlation': setIsCorrelationOpen(true); break;
       case 'report':
         downloadReport()
           .then(() => addToast('Incident report downloaded successfully', 'medium', 4000))
           .catch(() => addToast('Failed to generate report — is backend running?', 'high', 5000));
         break;
       case 'shortcuts':
-        // The KeyboardShortcuts component handles the '?' overlay
         document.dispatchEvent(new KeyboardEvent('keydown', { key: '?' }));
         break;
       default: break;
@@ -342,11 +353,18 @@ function DashboardContent() {
               </div>
               
               <div className={`transition-all duration-500 ease-in-out flex flex-col gap-3 overflow-hidden ${isLiveFeedExpanded ? 'opacity-100 max-h-96' : 'max-h-0 opacity-0'}`}>
-                {/* Timeline view of log entries */}
-                <ThreatTimeline 
-                  events={graphData.nodes.filter(n => n.label === 'LogEntry').map(n => n.properties)} 
-                  isVisible={isLiveFeedExpanded}
-                />
+                {/* Alert Correlation (replaces basic timeline when correlation is open) */}
+                {isCorrelationOpen ? (
+                  <AlertCorrelation
+                    events={graphData.nodes.filter(n => n.label === 'LogEntry').map(n => ({ ...n.properties, id: n.id }))}
+                    isVisible={isLiveFeedExpanded}
+                  />
+                ) : (
+                  <ThreatTimeline 
+                    events={graphData.nodes.filter(n => n.label === 'LogEntry').map(n => n.properties)} 
+                    isVisible={isLiveFeedExpanded}
+                  />
+                )}
                 <LiveFeed onNewEvent={handleLiveEvent} />
               </div>
             </div>
@@ -382,6 +400,26 @@ function DashboardContent() {
           isOpen={isGeoMapOpen} 
           onClose={() => setIsGeoMapOpen(false)} 
           graphData={graphData} 
+        />
+
+        {/* MITRE ATT&CK Panel */}
+        <MitreAttackPanel
+          isOpen={isMitreOpen}
+          onClose={() => setIsMitreOpen(false)}
+          graphData={graphData}
+        />
+
+        {/* Threat Intel Panel */}
+        <ThreatIntelPanel
+          node={threatIntelNode}
+          isOpen={!!threatIntelNode}
+          onClose={() => setThreatIntelNode(null)}
+        />
+
+        {/* Incident Summary Card */}
+        <IncidentSummaryCard
+          graphData={graphData}
+          isVisible={graphData.nodes.length > 0}
         />
       </div>
 

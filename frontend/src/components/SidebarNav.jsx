@@ -8,7 +8,8 @@
 import { useState } from 'react';
 import { 
   LayoutDashboard, BarChart3, Globe, Swords, FileText, 
-  Settings, Shield, HelpCircle, ChevronRight, ChevronLeft, Map 
+  Settings, Shield, HelpCircle, ChevronRight, ChevronLeft, Map,
+  Crosshair, Search, Link2, BrainCircuit
 } from 'lucide-react';
 
 const NAV_ITEMS = [
@@ -16,7 +17,9 @@ const NAV_ITEMS = [
   { id: 'analytics', icon: BarChart3, label: 'Analytics', section: 'view' },
   { id: 'topology', icon: Globe, label: 'Topology', section: 'view' },
   { id: 'geomap', icon: Map, label: 'Geo Map', section: 'view' },
+  { id: 'mitre', icon: Crosshair, label: 'MITRE ATT&CK', section: 'view' },
   { id: 'playbooks', icon: Swords, label: 'Playbooks', section: 'view' },
+  { id: 'correlation', icon: Link2, label: 'Correlation', section: 'view' },
   { id: 'report', icon: FileText, label: 'Report', section: 'action' },
   { id: 'shortcuts', icon: HelpCircle, label: 'Shortcuts', section: 'info' },
 ];
