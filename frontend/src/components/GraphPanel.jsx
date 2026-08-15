@@ -236,19 +236,40 @@ export default function GraphPanel({ graphData, onGraphUpdate }) {
     link.click();
   }, []);
 
+  const handleExportData = useCallback(() => {
+    if (!filteredData?.nodes) return;
+    
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(filteredData, null, 2));
+    const link = document.createElement('a');
+    link.download = `threat-graph-data-${new Date().toISOString().slice(0,10)}.json`;
+    link.href = dataStr;
+    link.click();
+  }, [filteredData]);
+
   const hasData = graphData?.nodes?.length > 0;
 
   return (
     <GlassCard variant="magenta" className="flex flex-col h-full overflow-hidden relative">
-      {/* Export Button */}
+      {/* Export Buttons */}
       {hasData && (
-        <button
-          onClick={handleExportScreenshot}
-          className="absolute top-3 right-4 z-10 text-[9px] font-mono tracking-widest uppercase py-1.5 px-3 rounded-md bg-[rgba(10,15,30,0.8)] border border-[rgba(255,255,255,0.1)] hover:border-white hover:bg-[rgba(255,255,255,0.1)] transition-all flex items-center gap-1.5"
-          style={{ color: '#e2e8f0' }}
-        >
-          📸 EXPORT
-        </button>
+        <div className="absolute top-3 right-4 z-10 flex gap-2">
+          <button
+            onClick={handleExportData}
+            className="text-[9px] font-mono tracking-widest uppercase py-1.5 px-3 rounded-md bg-[rgba(10,15,30,0.8)] border border-[rgba(255,255,255,0.1)] hover:border-white hover:bg-[rgba(255,255,255,0.1)] transition-all flex items-center gap-1.5"
+            style={{ color: '#e2e8f0' }}
+            title="Export filtered graph data as JSON"
+          >
+            💾 DATA
+          </button>
+          <button
+            onClick={handleExportScreenshot}
+            className="text-[9px] font-mono tracking-widest uppercase py-1.5 px-3 rounded-md bg-[rgba(10,15,30,0.8)] border border-[rgba(255,255,255,0.1)] hover:border-white hover:bg-[rgba(255,255,255,0.1)] transition-all flex items-center gap-1.5"
+            style={{ color: '#e2e8f0' }}
+            title="Export visual graph screenshot as PNG"
+          >
+            📸 EXPORT
+          </button>
+        </div>
       )}
 
       {/* Header */}
