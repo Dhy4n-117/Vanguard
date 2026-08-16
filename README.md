@@ -43,12 +43,17 @@ Vanguard Sentinel ingests raw server logs, extracts cybersecurity entities (Thre
 - **📈 Analytics Dashboard** — Full-screen analytics view with severity distribution charts, top targeted assets, node type breakdown, attack frequency sparklines, and threat actor activity tables — all built with pure Canvas/SVG.
 - **🌐 Network Topology Map** — Zone-based network layout (External → DMZ → Internal → Data Layer) with color-coded bezier connection paths and smart node classification.
 - **🌍 Geo-Threat Map** — Interactive Leaflet.js world map with CartoDB dark tiles showing threat actor origins (red), protected assets (blue), and IP addresses (amber) with animated attack-path arcs across the globe.
+- **🎯 MITRE ATT&CK Heatmap** — Full-screen coverage matrix mapping 14 ATT&CK tactics × 48 techniques with dynamic color-coded intensity based on live graph data. Auto-maps threat actors, CVEs, and log events to technique IDs.
 - **🔍 Semantic Log Search** — Vector-based search modal over raw log text via ChromaDB.
 - **⏱️ Threat Timeline** — Chronological horizontal timeline of security events for incident sequencing.
+- **🔗 Alert Correlation Engine** — Groups related events into correlated attack chains using source IP windowing, target asset matching, and sequential attack pattern detection (Scan → Exploit → Lateral → Exfil).
 
 ### Security Operations
 - **🚨 Real-Time Toast Notifications** — Critical/high severity events trigger cyberpunk-styled alert toasts in real-time.
 - **📋 Incident Report Generator** — Backend endpoint + one-click frontend download that compiles current graph state into a structured Markdown incident report.
+- **🧠 AI Incident Summary** — Auto-generated plain-English incident analysis card with threat actor attribution, attack chain description, and copy-to-clipboard — powered by template-based NLG.
+- **🛡️ Threat Intel Panel (OSINT)** — Slide-out intelligence panel with simulated reputation scores, ISP/country attribution, malware family associations, and MITRE TTP mappings for IPs and threat actors.
+- **📊 Risk Scoring Engine** — Dynamic 0-100 risk scores per node calculated from degree centrality, threat actor proximity, vulnerability count, and severity weighting.
 - **🔴 Live Attack Simulator** — Visual multi-stage attack demonstrations (Port Scan → Brute Force → Exfiltration) with graph diffing support.
 - **🔎 Graph Filtering** — Dynamic filter chips to show/hide specific node types (Threat Actors, IPs, Assets, Vulnerabilities, Log Entries).
 - **🗂️ Node Detail Panel** — Slide-out glassmorphism sidebar with full node metadata, connection summaries, and expansion actions.
