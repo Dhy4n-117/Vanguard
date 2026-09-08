@@ -263,6 +263,7 @@ function DashboardContent() {
             onOpenAnalytics={() => setIsAnalyticsOpen(true)}
             onOpenTopology={() => setIsTopologyOpen(true)}
             onOpenGeoMap={() => setIsGeoMapOpen(true)}
+            onOpenMitre={() => setIsMitreOpen(true)}
           />
 
           {/* Main Dashboard Layout */}
