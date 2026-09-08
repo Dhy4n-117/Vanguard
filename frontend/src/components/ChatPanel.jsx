@@ -81,6 +81,15 @@ export default function ChatPanel({ onGraphUpdate, onClose }) {
             >
               {showSuggestions ? 'Hide Hints' : 'Show Hints'}
             </button>
+            {messages.length > 1 && (
+              <button
+                onClick={() => setMessages([messages[0]])}
+                className="text-[9px] font-mono px-2 py-0.5 rounded border border-[rgba(239,68,68,0.3)] bg-[rgba(239,68,68,0.05)] text-red-400 hover:bg-[rgba(239,68,68,0.15)] transition-colors uppercase tracking-tighter"
+                title="Clear conversation history"
+              >
+                Clear
+              </button>
+            )}
           </div>
           <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
             Ask questions about your security data in natural language
