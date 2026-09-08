@@ -79,6 +79,14 @@ export default function LiveFeed({ onNewEvent }) {
           }}
         />
         {isStreaming ? 'STOP LIVE' : 'GO LIVE'}
+        {events.length > 0 && (
+          <span className="ml-1 px-1.5 py-0.5 rounded-full text-[8px] font-mono" style={{
+            background: 'rgba(255,255,255,0.1)',
+            color: isStreaming ? '#ef4444' : '#22c55e',
+          }}>
+            {events.length}
+          </span>
+        )}
       </button>
 
       {/* Status */}
