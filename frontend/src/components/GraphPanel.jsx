@@ -38,6 +38,7 @@ export default function GraphPanel({ graphData, onGraphUpdate }) {
   const [selectedNode, setSelectedNode] = useState(null);
   const [isExpanding, setIsExpanding] = useState(false);
   const [expandedNodeIds, setExpandedNodeIds] = useState(new Set());
+  const [searchQuery, setSearchQuery] = useState('');
   
   // NEW: Graph Filters State
   const [activeFilters, setActiveFilters] = useState([
@@ -123,8 +124,22 @@ export default function GraphPanel({ graphData, onGraphUpdate }) {
     const isHovered = hoveredNode?.id === node.id;
     const isSelected = selectedNode?.id === node.id;
     const isExpanded = expandedNodeIds.has(node.id);
+    const isSearchMatch = searchQuery && node.name?.toLowerCase().includes(searchQuery.toLowerCase());
 
     const isIsolated = node.properties?.isolated === true;
+
+    // Search match glow ring
+    if (isSearchMatch) {
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, size + 10, 0, 2 * Math.PI);
+      ctx.fillStyle = '#06b6d430';
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, size + 7, 0, 2 * Math.PI);
+      ctx.strokeStyle = '#06b6d4';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
 
     // Outer pulse ring for expanded nodes
     if (isExpanded) {
@@ -184,7 +199,7 @@ export default function GraphPanel({ graphData, onGraphUpdate }) {
       ctx.fillStyle = '#f1f5f9';
       ctx.fillText(name, node.x, node.y + size + 3);
     }
-  }, [hoveredNode, selectedNode, expandedNodeIds]);
+  }, [hoveredNode, selectedNode, expandedNodeIds, searchQuery]);
 
   // Custom link rendering
   const paintLink = useCallback((link, ctx) => {
@@ -283,6 +298,27 @@ export default function GraphPanel({ graphData, onGraphUpdate }) {
             {isExpanding && ' · Expanding...'}
           </p>
         </div>
+        {hasData && (
+          <div className="relative">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="🔎 Search nodes..."
+              className="text-[10px] font-mono px-3 py-1.5 rounded-lg border w-44 placeholder:text-slate-600"
+              style={{
+                background: 'rgba(10,15,30,0.8)',
+                color: 'var(--text-primary)',
+                borderColor: searchQuery ? 'var(--accent-cyan)' : 'var(--glass-border)',
+              }}
+            />
+            {searchQuery && (
+              <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[8px] font-mono" style={{ color: 'var(--accent-cyan)' }}>
+                {filteredData.nodes.filter(n => n.name?.toLowerCase().includes(searchQuery.toLowerCase())).length} found
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Graph Filters */}
