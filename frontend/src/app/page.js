@@ -28,6 +28,7 @@ import MitreAttackPanel from '../components/MitreAttackPanel';
 import ThreatIntelPanel from '../components/ThreatIntelPanel';
 import AlertCorrelation from '../components/AlertCorrelation';
 import IncidentSummaryCard from '../components/IncidentSummaryCard';
+import MatrixRain from '../components/MatrixRain';
 
 // Wrap the dashboard content so it can use the toast hook
 function DashboardContent() {
@@ -433,6 +434,9 @@ function DashboardContent() {
         onToggleStats={() => setIsStatsExpanded(prev => !prev)}
         onCloseAll={handleCloseAll}
       />
+
+      {/* Easter Egg: Ctrl+Shift+M */}
+      <MatrixRain />
     </SpotlightProvider>
   );
 }
