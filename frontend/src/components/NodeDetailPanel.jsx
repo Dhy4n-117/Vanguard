@@ -79,11 +79,21 @@ export default function NodeDetailPanel({ node, graphData, onClose, onExpand, is
       <div className="px-5 py-4 flex items-center justify-between" style={{ borderBottom: `1px solid ${color}30` }}>
         <div className="flex items-center gap-2">
           <span className="text-xl">{icon}</span>
-          <div>
+          <div className="flex-1 min-w-0">
             <h3 className="font-display text-sm font-bold tracking-wider" style={{ color }}>
               {node.label?.replace(/([A-Z])/g, ' $1').trim()}
             </h3>
-            <p className="text-xs font-mono mt-0.5" style={{ color: '#94a3b8' }}>{node.name}</p>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <p className="text-xs font-mono truncate" style={{ color: '#94a3b8' }}>{node.name}</p>
+              <button
+                onClick={() => { navigator.clipboard.writeText(node.name || node.id); }}
+                className="text-[8px] font-mono px-1.5 py-0.5 rounded border border-transparent hover:border-[rgba(6,182,212,0.3)] hover:bg-[rgba(6,182,212,0.1)] transition-all flex-shrink-0"
+                style={{ color: 'var(--accent-cyan)' }}
+                title="Copy to clipboard"
+              >
+                📋
+              </button>
+            </div>
           </div>
         </div>
         <button
