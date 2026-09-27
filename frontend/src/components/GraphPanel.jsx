@@ -261,13 +261,40 @@ export default function GraphPanel({ graphData, onGraphUpdate }) {
     link.click();
   }, [filteredData]);
 
+  const handleZoomToFit = useCallback(() => {
+    if (!graphRef.current) return;
+    graphRef.current.zoomToFit(400, 60);
+  }, []);
+
+  const handleCenterGraph = useCallback(() => {
+    if (!graphRef.current) return;
+    graphRef.current.centerAt(0, 0, 500);
+    graphRef.current.zoom(1, 500);
+  }, []);
+
   const hasData = graphData?.nodes?.length > 0;
 
   return (
     <GlassCard variant="magenta" className="flex flex-col h-full overflow-hidden relative">
-      {/* Export Buttons */}
+      {/* Toolbar */}
       {hasData && (
         <div className="absolute top-3 right-4 z-10 flex gap-2">
+          <button
+            onClick={handleZoomToFit}
+            className="text-[9px] font-mono tracking-widest uppercase py-1.5 px-3 rounded-md bg-[rgba(10,15,30,0.8)] border border-[rgba(255,255,255,0.1)] hover:border-cyan-400 hover:bg-[rgba(6,182,212,0.1)] transition-all flex items-center gap-1.5"
+            style={{ color: '#e2e8f0' }}
+            title="Zoom to fit all nodes in view"
+          >
+            🔍 FIT
+          </button>
+          <button
+            onClick={handleCenterGraph}
+            className="text-[9px] font-mono tracking-widest uppercase py-1.5 px-3 rounded-md bg-[rgba(10,15,30,0.8)] border border-[rgba(255,255,255,0.1)] hover:border-cyan-400 hover:bg-[rgba(6,182,212,0.1)] transition-all flex items-center gap-1.5"
+            style={{ color: '#e2e8f0' }}
+            title="Reset zoom and center the graph"
+          >
+            ⊕ RESET
+          </button>
           <button
             onClick={handleExportData}
             className="text-[9px] font-mono tracking-widest uppercase py-1.5 px-3 rounded-md bg-[rgba(10,15,30,0.8)] border border-[rgba(255,255,255,0.1)] hover:border-white hover:bg-[rgba(255,255,255,0.1)] transition-all flex items-center gap-1.5"
