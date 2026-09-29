@@ -333,6 +333,26 @@ body::after {
   box-shadow: none;
 }
 
+/* ─── Scrollbars ─────────────────────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(3, 7, 18, 0.4);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.2);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(6, 182, 212, 0.4);
+}
+
 /* ─── Graph Container ─────────────────────────────────────── */
 
 .graph-container canvas {
