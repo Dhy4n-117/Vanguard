@@ -68,18 +68,35 @@ export class ErrorBoundary extends React.Component {
             </pre>
           </details>
 
-          <button
-            onClick={this.handleReset}
-            className="px-4 py-2 rounded-lg text-[10px] font-display tracking-widest uppercase transition-all duration-200 border"
-            style={{
-              background: 'rgba(59, 130, 246, 0.1)',
-              color: 'var(--accent-cyan)',
-              borderColor: 'rgba(59, 130, 246, 0.2)',
-              cursor: 'pointer'
-            }}
-          >
-            ↻ Retry
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={this.handleReset}
+              className="px-4 py-2 rounded-lg text-[10px] font-display tracking-widest uppercase transition-all duration-200 border"
+              style={{
+                background: 'rgba(59, 130, 246, 0.1)',
+                color: 'var(--accent-cyan)',
+                borderColor: 'rgba(59, 130, 246, 0.2)',
+                cursor: 'pointer'
+              }}
+            >
+              ↻ Retry
+            </button>
+            <button
+              onClick={() => {
+                const report = `[Vanguard Error] ${new Date().toISOString()}\n${this.state.error?.message}\n\n${this.state.error?.stack || ''}`;
+                navigator.clipboard.writeText(report);
+              }}
+              className="px-4 py-2 rounded-lg text-[10px] font-display tracking-widest uppercase transition-all duration-200 border"
+              style={{
+                background: 'rgba(249, 115, 22, 0.1)',
+                color: '#f97316',
+                borderColor: 'rgba(249, 115, 22, 0.2)',
+                cursor: 'pointer'
+              }}
+            >
+              📋 Copy Error
+            </button>
+          </div>
         </div>
       );
     }
