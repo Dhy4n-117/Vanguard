@@ -9,8 +9,9 @@ We take the security of Vanguard Sentinel seriously. If you discover a security 
 ## Supported Versions
 
 | Version | Supported          |
-|---------|--------------------|
-| 0.1.x   | :white_check_mark: |
+|---------|--------------------|| 
+| 0.2.x   | :white_check_mark: |
+| 0.1.x   | :warning:          |
 | < 0.1   | :x:                |
 
 ## Reporting a Vulnerability
@@ -84,4 +85,4 @@ We follow a **coordinated disclosure** process:
 
 ---
 
-*This security policy is effective as of June 2026 and applies to all versions of Vanguard Sentinel.*
+*This security policy is effective as of September 2026 and applies to all versions of Vanguard Sentinel.*
