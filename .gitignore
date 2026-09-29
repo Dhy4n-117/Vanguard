@@ -67,3 +67,7 @@ coverage/
 *.bak
 *.tmp
 .cache/
+
+# Local logs & scripts
+Run.txt
+
