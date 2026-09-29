@@ -126,6 +126,15 @@ export default function SidebarNav({
         </button>
       </div>
 
+      {/* Version Info */}
+      {isExpanded && (
+        <div className="px-4 py-1.5 animate-fade-in-up" style={{ borderTop: '1px solid var(--glass-border)' }}>
+          <p className="text-[7px] font-mono tracking-widest uppercase text-center" style={{ color: 'var(--text-muted)' }}>
+            VANGUARD SENTINEL v0.2.0
+          </p>
+        </div>
+      )}
+
       {/* Active status indicator */}
       <div className="h-1 rounded-t" style={{ background: 'var(--accent-emerald)' }} />
     </div>
