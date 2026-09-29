@@ -45,7 +45,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Vanguard Sentinel API",
     description="Cybersecurity Knowledge Graph & Threat Detection Platform",
-    version="0.1.0",
+    version="0.2.0",
     lifespan=lifespan,
 )
 
@@ -105,6 +105,6 @@ app.include_router(report_router, tags=["Report"])
 async def root():
     return {
         "name": "Vanguard Sentinel API",
-        "version": "0.1.0",
+        "version": "0.2.0",
         "docs": "/docs",
     }

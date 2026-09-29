@@ -70,5 +70,6 @@ class SearchResponse(BaseModel):
 
 class HealthResponse(BaseModel):
     status: str = "ok"
+    version: str = "0.2.0"
     neo4j: str = "disconnected"
     chroma: str = "disconnected"
