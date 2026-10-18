@@ -73,3 +73,4 @@ class HealthResponse(BaseModel):
     version: str = "0.2.0"
     neo4j: str = "disconnected"
     chroma: str = "disconnected"
+    timestamp: Optional[str] = None

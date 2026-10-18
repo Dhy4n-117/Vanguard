@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from backend.config import settings
 from backend.graph.neo4j_client import neo4j_client
 from backend.vectorstore.chroma_client import chroma_client
+from datetime import datetime, timezone
 from backend.models.schemas import HealthResponse
 
 
@@ -75,8 +76,10 @@ async def health_check():
     """Check the health of all services."""
     return HealthResponse(
         status="ok",
+        version="0.2.0",
         neo4j="connected" if neo4j_client.is_connected() else "disconnected",
         chroma="connected" if chroma_client.is_connected() else "disconnected",
+        timestamp=datetime.now(timezone.utc).isoformat(),
     )
 
 
