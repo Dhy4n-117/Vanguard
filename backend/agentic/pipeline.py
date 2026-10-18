@@ -26,6 +26,7 @@ async def run_query_pipeline(query: str) -> QueryResponse:
     4. Transform results into subgraph format for the force graph
     5. Return AI summary + Cypher + subgraph
     """
+    start_time = time.perf_counter()
     try:
         # Step 1: Get semantic context from ChromaDB
         context_results = chroma_client.search(query, top_k=3)
@@ -75,11 +76,13 @@ async def run_query_pipeline(query: str) -> QueryResponse:
 
         # Step 5: Build subgraph from Cypher results
         subgraph = _build_subgraph_from_cypher(generated_cypher)
+        duration_ms = round((time.perf_counter() - start_time) * 1000, 2)
 
         return QueryResponse(
             answer=answer,
             cypher=generated_cypher,
             subgraph=subgraph,
+            execution_time_ms=duration_ms,
         )
 
     except Exception as e:
