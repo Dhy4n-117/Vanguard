@@ -9,21 +9,30 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
  * Generic fetch wrapper with error handling.
  */
 async function apiFetch(endpoint, options = {}) {
-  const url = `${API_BASE}${endpoint}`;
-  const response = await fetch(url, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-    ...options,
-  });
+  const { timeout = 30000, ...fetchOptions } = options;
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ detail: response.statusText }));
-    throw new Error(error.detail || `API error: ${response.status}`);
+  try {
+    const url = `${API_BASE}${endpoint}`;
+    const response = await fetch(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...fetchOptions.headers,
+      },
+      signal: controller.signal,
+      ...fetchOptions,
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: response.statusText }));
+      throw new Error(error.detail || `API error: ${response.status}`);
+    }
+
+    return response.json();
+  } finally {
+    clearTimeout(id);
   }
-
-  return response.json();
 }
 
 /**
