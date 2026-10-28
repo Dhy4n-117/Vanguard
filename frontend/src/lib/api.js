@@ -38,8 +38,8 @@ async function apiFetch(endpoint, options = {}) {
 /**
  * Check backend health.
  */
-export async function checkHealth() {
-  return apiFetch('/api/health');
+export async function checkHealth(timeout = 5000) {
+  return apiFetch('/api/health', { timeout });
 }
 
 /**
@@ -135,3 +135,4 @@ export async function downloadReport() {
   URL.revokeObjectURL(url);
   return data;
 }
+
