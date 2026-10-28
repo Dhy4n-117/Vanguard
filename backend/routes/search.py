@@ -15,8 +15,10 @@ async def semantic_search(request: SearchRequest):
     """Perform semantic search over embedded log entries."""
     try:
         results = chroma_client.search(query=request.query, top_k=request.top_k)
+        formatted_results = [SearchResult(**r) for r in results]
         return SearchResponse(
-            results=[SearchResult(**r) for r in results]
+            results=formatted_results,
+            total=len(formatted_results),
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")
