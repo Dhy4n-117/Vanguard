@@ -27,6 +27,11 @@ class GraphData(BaseModel):
     nodes: list[GraphNode] = Field(default_factory=list)
     links: list[GraphLink] = Field(default_factory=list)
 
+    @property
+    def is_empty(self) -> bool:
+        """Check if graph contains neither nodes nor links."""
+        return len(self.nodes) == 0 and len(self.links) == 0
+
 
 # ─── Ingestion ────────────────────────────────────────────
 
