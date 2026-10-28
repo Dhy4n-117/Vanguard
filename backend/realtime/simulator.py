@@ -37,6 +37,10 @@ class ThreatSimulator:
             self._task.cancel()
         print("[SIM] Threat simulation stopped")
 
+    def reset_stats(self):
+        """Reset the count of generated events."""
+        self.events_generated = 0
+
     async def _run(self, interval: float):
         while self.is_running:
             try:
@@ -87,3 +91,5 @@ class ThreatSimulator:
             await asyncio.sleep(0.5)
 
 live_simulator = ThreatSimulator()
+
+
