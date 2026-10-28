@@ -71,6 +71,11 @@ RELATIONSHIP_TYPES = {
 
 # ─── Schema Description (for LLM prompts) ────────────────
 
+def get_node_color(label: str) -> str:
+    """Returns the theme color hex for a given node label with fallback."""
+    return NODE_LABELS.get(label, {}).get("color", "#94a3b8")
+
+
 def get_schema_description() -> str:
     """Returns a human-readable schema description for LLM context."""
     lines = ["=== Neo4j Graph Schema ===\n", "Node Labels:"]
