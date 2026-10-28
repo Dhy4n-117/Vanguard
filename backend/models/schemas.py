@@ -32,6 +32,11 @@ class GraphData(BaseModel):
         """Check if graph contains neither nodes nor links."""
         return len(self.nodes) == 0 and len(self.links) == 0
 
+    @property
+    def total_entities(self) -> int:
+        """Return the sum of nodes and links in the graph data."""
+        return len(self.nodes) + len(self.links)
+
 
 # ─── Ingestion ────────────────────────────────────────────
 
@@ -81,3 +86,5 @@ class HealthResponse(BaseModel):
     neo4j: str = "disconnected"
     chroma: str = "disconnected"
     timestamp: Optional[str] = None
+
+
