@@ -133,7 +133,23 @@ async def _persist_and_broadcast(event: dict):
         )
 
         # Broadcast to WebSocket clients
-        await ws_manager.broadcast("NEW_EVENT", {**event, "id": event_id})
+        await ws_manager.broadcast({
+            "type": "NEW_EVENT",
+            "data": {
+                "event": {**event, "id": event_id},
+                "subgraph": {
+                    "nodes": [
+                        {
+                            "id": f"log-{event_id}",
+                            "label": "LogEntry",
+                            "name": event.get("event_type", "LogEntry"),
+                            "properties": {**event, "id": event_id},
+                        }
+                    ],
+                    "links": [],
+                },
+            },
+        })
 
     except Exception as e:
         print(f"[WARN] Pipeline persist failed: {e}")

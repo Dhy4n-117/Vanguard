@@ -88,3 +88,26 @@ class HealthResponse(BaseModel):
     timestamp: Optional[str] = None
 
 
+# ─── Incident Report ──────────────────────────────────────
+
+class GraphStat(BaseModel):
+    label: str
+    count: int
+
+
+class IncidentReportResponse(BaseModel):
+    report: str
+    generated_at: str
+    report_id: str
+    stats: list[GraphStat] = Field(default_factory=list)
+
+
+# ─── Stream Status ────────────────────────────────────────
+
+class StreamStatusResponse(BaseModel):
+    running: bool
+    events_generated: int
+    connected_clients: int
+
+
+

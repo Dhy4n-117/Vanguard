@@ -68,6 +68,13 @@ class ChromaClient:
         except Exception:
             return False
 
+    def count(self) -> int:
+        """Return the number of documents indexed in the collection."""
+        try:
+            return self._collection.count() if self._collection else 0
+        except Exception:
+            return 0
+
     def clear(self):
         """Delete and recreate the collection."""
         if self._client:

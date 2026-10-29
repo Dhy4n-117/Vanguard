@@ -76,6 +76,24 @@ def get_node_color(label: str) -> str:
     return NODE_LABELS.get(label, {}).get("color", "#94a3b8")
 
 
+def get_node_icon(label: str) -> str:
+    """Returns the display icon/emoji for a given node label with fallback."""
+    return NODE_LABELS.get(label, {}).get("icon", "📌")
+
+
+def get_node_properties(label: str) -> list[str]:
+    """Returns the list of defined property names for a node label."""
+    return list(NODE_LABELS.get(label, {}).get("properties", []))
+
+
+def is_valid_relationship(rel_type: str, source_label: str, target_label: str) -> bool:
+    """Validate whether a relationship type connects the expected source and target node labels."""
+    rel = RELATIONSHIP_TYPES.get(rel_type)
+    if not rel:
+        return False
+    return rel.get("source") == source_label and rel.get("target") == target_label
+
+
 def get_schema_description() -> str:
     """Returns a human-readable schema description for LLM context."""
     lines = ["=== Neo4j Graph Schema ===\n", "Node Labels:"]

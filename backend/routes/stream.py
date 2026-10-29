@@ -9,6 +9,7 @@ Vanguard Sentinel — WebSocket & Live Stream Routes
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from backend.realtime.ws_manager import ws_manager
 from backend.realtime.simulator import live_simulator
+from backend.models.schemas import StreamStatusResponse
 
 router = APIRouter()
 
@@ -55,11 +56,11 @@ async def simulate_attack():
     return {"status": "attack_initiated"}
 
 
-@router.get("/api/stream/status")
-async def stream_status():
+@router.get("/api/stream/status", response_model=StreamStatusResponse)
+async def stream_status() -> StreamStatusResponse:
     """Get the current status of the live event simulator."""
-    return {
-        "running": live_simulator.is_running,
-        "events_generated": live_simulator.events_generated,
-        "connected_clients": ws_manager.client_count,
-    }
+    return StreamStatusResponse(
+        running=live_simulator.is_running,
+        events_generated=live_simulator.events_generated,
+        connected_clients=ws_manager.client_count,
+    )
