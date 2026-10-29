@@ -13,6 +13,7 @@ const RECONNECT_DELAY = 3000; // ms
 export default function useWebSocket({ onEvent, enabled = true }) {
   const wsRef = useRef(null);
   const reconnectTimer = useRef(null);
+  const connectRef = useRef(null);
   const [isConnected, setIsConnected] = useState(false);
 
   const connect = useCallback(() => {
@@ -44,7 +45,7 @@ export default function useWebSocket({ onEvent, enabled = true }) {
         // Auto-reconnect
         if (enabled) {
           reconnectTimer.current = setTimeout(() => {
-            if (wsRef.current === ws) connect();
+            if (wsRef.current === ws) connectRef.current?.();
           }, RECONNECT_DELAY);
         }
       };
@@ -59,6 +60,10 @@ export default function useWebSocket({ onEvent, enabled = true }) {
       console.warn('[WS] Connection failed:', err);
     }
   }, [enabled, onEvent]);
+
+  useEffect(() => {
+    connectRef.current = connect;
+  }, [connect]);
 
   useEffect(() => {
     connect();

@@ -156,10 +156,10 @@ function useAnalyticsData(graphData) {
           return pts;
         }
       }
-      // Fallback: synthetic data based on node count for visual interest
+      // Fallback: synthetic data based on node count for visual interest (deterministic for render purity)
       const base = Math.max(2, Math.floor(totalNodes / 6));
       for (let i = 0; i < count; i++) {
-        pts.push(Math.max(0, base + Math.floor(Math.sin(i * 0.8) * base * 0.6) + Math.floor(Math.random() * 3)));
+        pts.push(Math.max(0, base + Math.floor(Math.sin(i * 0.8) * base * 0.6) + ((i * 7 + base) % 3)));
       }
       return pts;
     })();

@@ -48,11 +48,15 @@ function generateIncidentSummary(graphData) {
 
 export default function IncidentSummaryCard({ graphData, isVisible }) {
   const [dismissed, setDismissed] = useState(false);
+  const [prevIsVisible, setPrevIsVisible] = useState(isVisible);
   const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
-    if (isVisible) setDismissed(false);
-  }, [isVisible]);
+  if (prevIsVisible !== isVisible) {
+    setPrevIsVisible(isVisible);
+    if (isVisible) {
+      setDismissed(false);
+    }
+  }
 
   const { summary, severity } = useMemo(() => generateIncidentSummary(graphData), [graphData]);
 

@@ -168,4 +168,5 @@ export function StatsSkeleton() {
   );
 }
 
-export default { GraphSkeleton, ChatSkeleton, StatsSkeleton };
+const LoadingSkeletons = { GraphSkeleton, ChatSkeleton, StatsSkeleton };
+export default LoadingSkeletons;

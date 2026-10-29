@@ -80,7 +80,7 @@ function DashboardContent() {
     if (backendStatus === 'connected' && graphData.nodes.length === 0) {
       fetchFullGraph().then(setGraphData).catch(console.error);
     }
-  }, [backendStatus]);
+  }, [backendStatus, graphData.nodes.length]);
 
   const handleIngest = async () => {
     setIsIngesting(true);

@@ -24,7 +24,9 @@ export default function useKeyboardShortcuts(shortcuts) {
   // Keep a stable ref so the listener always sees the latest shortcuts
   // without re-attaching on every render.
   const shortcutsRef = useRef(shortcuts);
-  shortcutsRef.current = shortcuts;
+  useEffect(() => {
+    shortcutsRef.current = shortcuts;
+  }, [shortcuts]);
 
   const handleKeyDown = useCallback((e) => {
     // Skip when user is typing in an input / textarea / contentEditable
