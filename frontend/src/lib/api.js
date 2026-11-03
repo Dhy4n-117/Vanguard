@@ -45,8 +45,8 @@ export async function checkHealth(timeout = 5000) {
 /**
  * Trigger data ingestion.
  */
-export async function ingestData() {
-  return apiFetch('/api/ingest', { method: 'POST' });
+export async function ingestData(options = {}) {
+  return apiFetch('/api/ingest', { method: 'POST', ...options });
 }
 
 /**
