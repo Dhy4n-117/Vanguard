@@ -73,6 +73,9 @@ RELATIONSHIP_TYPES = {
 
 def get_node_icon(label: str) -> str:
     return NODE_LABELS.get(label, {}).get("icon", "📌")
+def get_node_labels() -> list[str]:
+    return list(NODE_LABELS.keys())
+
 def get_node_color(label: str) -> str:
     """Returns the theme color hex for a given node label with fallback."""
     return NODE_LABELS.get(label, {}).get("color", "#94a3b8")
