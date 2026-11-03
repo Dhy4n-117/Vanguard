@@ -53,7 +53,7 @@ async def simulate_attack():
     """Triggers a burst of malicious events representing a targeted attack."""
     # Run in background so request returns immediately
     asyncio.create_task(live_simulator.simulate_attack_burst())
-    return {"status": "attack_initiated"}
+    return {"status": "attack_initiated", "burst_count": 5}
 
 
 @router.get("/api/stream/status", response_model=StreamStatusResponse)
