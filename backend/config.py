@@ -31,6 +31,7 @@ class Settings(BaseSettings):
     # ── Server ─────────────────────────────────
     backend_host: str = "0.0.0.0"
     backend_port: int = 8000
+    app_env: str = "development"
 
     # ── Frontend ───────────────────────────────
     frontend_url: str = "http://localhost:3000"
