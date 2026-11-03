@@ -62,8 +62,8 @@ export async function queryGraph(query) {
 /**
  * Fetch the full graph data for visualization.
  */
-export async function fetchFullGraph() {
-  return apiFetch('/api/graph');
+export async function fetchFullGraph(options = {}) {
+  return apiFetch('/api/graph', options);
 }
 
 /**
