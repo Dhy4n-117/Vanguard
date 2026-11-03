@@ -69,10 +69,11 @@ export async function fetchFullGraph(options = {}) {
 /**
  * Perform semantic search over log entries.
  */
-export async function semanticSearch(query, topK = 5) {
+export async function semanticSearch(query, topK = 5, options = {}) {
   return apiFetch('/api/search', {
     method: 'POST',
     body: JSON.stringify({ query, top_k: topK }),
+    ...options,
   });
 }
 
