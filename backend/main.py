@@ -80,6 +80,7 @@ async def health_check():
         neo4j="connected" if neo4j_client.is_connected() else "disconnected",
         chroma="connected" if chroma_client.is_connected() else "disconnected",
         timestamp=datetime.now(timezone.utc).isoformat(),
+        environment=settings.app_env,
     )
 
 
