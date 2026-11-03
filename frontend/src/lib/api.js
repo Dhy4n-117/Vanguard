@@ -102,8 +102,8 @@ export async function stopStream() {
 /**
  * Get live stream status.
  */
-export async function getStreamStatus() {
-  return apiFetch('/api/stream/status');
+export async function getStreamStatus(options = {}) {
+  return apiFetch('/api/stream/status', options);
 }
 
 /**
