@@ -26,6 +26,8 @@ class ConnectionManager:
     def has_connections(self) -> bool:
         """Check if there are any active WebSocket clients connected."""
         return len(self.active_connections) > 0
+    def get_status(self) -> dict:
+        return {"connected_clients": self.client_count}
 
     async def broadcast(self, message: dict):
         """Send JSON message to all connected clients."""
