@@ -113,6 +113,7 @@ class StreamStatusResponse(BaseModel):
     running: bool
     events_generated: int
     connected_clients: int
+    uptime_seconds: Optional[float] = None
 
 
 
