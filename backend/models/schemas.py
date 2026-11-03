@@ -58,6 +58,7 @@ class QueryResponse(BaseModel):
     cypher: str = ""
     subgraph: GraphData = Field(default_factory=GraphData)
     execution_time_ms: Optional[float] = None
+    cached: bool = False
 
 
 # ─── Semantic Search ──────────────────────────────────────
