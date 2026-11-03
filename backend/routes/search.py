@@ -19,6 +19,7 @@ async def semantic_search(request: SearchRequest):
         return SearchResponse(
             results=formatted_results,
             total=len(formatted_results),
+            query=request.query,
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")
