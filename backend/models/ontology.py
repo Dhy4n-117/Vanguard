@@ -73,6 +73,9 @@ RELATIONSHIP_TYPES = {
 
 def get_node_icon(label: str) -> str:
     return NODE_LABELS.get(label, {}).get("icon", "📌")
+def is_valid_label(label: str) -> bool:
+    return label in NODE_LABELS
+
 def get_relationship_types() -> list[str]:
     return list(RELATIONSHIP_TYPES.keys())
 
