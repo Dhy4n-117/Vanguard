@@ -53,6 +53,7 @@ class CloudTrailEvent(BaseModel):
     """Simplified AWS CloudTrail event."""
     eventName: str
     eventSource: str
+    awsRegion: Optional[str] = None
     sourceIPAddress: Optional[str] = None
     userIdentity: Optional[dict] = Field(default_factory=dict)
     requestParameters: Optional[dict] = Field(default_factory=dict)
