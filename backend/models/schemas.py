@@ -88,6 +88,7 @@ class HealthResponse(BaseModel):
     neo4j: str = "disconnected"
     chroma: str = "disconnected"
     timestamp: Optional[str] = None
+    environment: str = "development"
 
 
 # ─── Incident Report ──────────────────────────────────────
