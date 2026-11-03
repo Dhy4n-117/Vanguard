@@ -35,6 +35,7 @@ class WebhookLog(BaseModel):
     description: str
     timestamp: Optional[str] = None
     metadata: Optional[dict] = Field(default_factory=dict)
+    raw_payload: Optional[dict] = None
 
 
 class SyslogEntry(BaseModel):
