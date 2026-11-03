@@ -61,6 +61,7 @@ class ThreatSimulator:
             "event_type": random.choice(EVENT_TYPES),
             "target_asset": random.choice(ASSETS),
             "severity": random.choice(SEVERITIES),
+            "protocol": random.choice(PROTOCOLS),
             "description": "Anomalous activity detected via real-time telemetry."
         }
 
