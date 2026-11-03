@@ -45,6 +45,7 @@ class SyslogEntry(BaseModel):
     severity: Optional[int] = None
     hostname: str
     message: str
+    app_name: Optional[str] = None
     timestamp: Optional[str] = None
 
 
