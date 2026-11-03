@@ -73,6 +73,9 @@ RELATIONSHIP_TYPES = {
 
 def get_node_icon(label: str) -> str:
     return NODE_LABELS.get(label, {}).get("icon", "📌")
+def get_relationship_types() -> list[str]:
+    return list(RELATIONSHIP_TYPES.keys())
+
 def get_node_labels() -> list[str]:
     return list(NODE_LABELS.keys())
 
