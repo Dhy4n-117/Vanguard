@@ -16,6 +16,7 @@ EVENT_TYPES = [
 ]
 
 ASSETS = ["web-server-01", "db-server-prod", "mail-server", "vpn-gateway", "auth-proxy", "file-server-01"]
+PROTOCOLS = ["TCP", "UDP", "ICMP", "HTTPS"]
 SEVERITIES = ["low", "medium", "high", "critical"]
 
 class ThreatSimulator:
