@@ -45,6 +45,7 @@ class IngestResponse(BaseModel):
     edges_created: int
     threat_actors: int = 0
     assets_count: int = 0
+    vulnerabilities_count: int = 0
     logs_embedded: int
     message: str = "Ingestion complete"
 
