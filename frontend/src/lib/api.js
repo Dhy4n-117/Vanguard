@@ -95,8 +95,8 @@ export async function startStream(interval = 5) {
 /**
  * Stop the live event simulator.
  */
-export async function stopStream() {
-  return apiFetch('/api/stream/stop', { method: 'POST' });
+export async function stopStream(options = {}) {
+  return apiFetch('/api/stream/stop', { method: 'POST', ...options });
 }
 
 /**
