@@ -109,8 +109,8 @@ export async function getStreamStatus(options = {}) {
 /**
  * Trigger an attack simulation burst.
  */
-export async function simulateAttack() {
-  return apiFetch('/api/stream/simulate-attack', { method: 'POST' });
+export async function simulateAttack(options = {}) {
+  return apiFetch('/api/stream/simulate-attack', { method: 'POST', ...options });
 }
 
 /**
