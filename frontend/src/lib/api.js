@@ -116,8 +116,8 @@ export async function simulateAttack(options = {}) {
 /**
  * Generate an incident report from the current graph state.
  */
-export async function generateReport() {
-  return apiFetch('/api/report/generate');
+export async function generateReport(options = {}) {
+  return apiFetch('/api/report/generate', options);
 }
 
 /**
