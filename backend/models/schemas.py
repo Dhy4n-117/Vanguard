@@ -48,6 +48,7 @@ class IngestResponse(BaseModel):
     vulnerabilities_count: int = 0
     ip_addresses_count: int = 0
     duration_seconds: Optional[float] = None
+    status: str = "success"
     logs_embedded: int
     message: str = "Ingestion complete"
 
