@@ -123,7 +123,7 @@ export async function generateReport(options = {}) {
 /**
  * Download the incident report as a markdown file.
  */
-export async function downloadReport() {
+export async function downloadReport(filenamePrefix = 'sentinel-report') {
   const data = await generateReport();
   const blob = new Blob([data.report], { type: 'text/markdown' });
   const url = URL.createObjectURL(blob);
