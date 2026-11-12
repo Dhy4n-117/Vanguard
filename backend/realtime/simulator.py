@@ -15,7 +15,7 @@ EVENT_TYPES = [
     "privilege_escalation", "c2_beacon", "data_exfiltration", "exploit_attempt"
 ]
 
-ASSETS = ["web-server-01", "db-server-prod", "mail-server", "vpn-gateway", "auth-proxy", "file-server-01", "k8s-worker-01", "ci-runner-prod", "bastion-host-01", "redis-cache-01", "auth-service-01"]
+ASSETS = ["web-server-01", "db-server-prod", "mail-server", "vpn-gateway", "auth-proxy", "file-server-01", "k8s-worker-01", "ci-runner-prod", "bastion-host-01", "redis-cache-01", "auth-service-01", "elastic-cluster-01"]
 PROTOCOLS = ["TCP", "UDP", "ICMP", "HTTPS"]
 SEVERITIES = ["low", "medium", "high", "critical"]
 
