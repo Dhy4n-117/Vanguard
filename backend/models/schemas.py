@@ -49,6 +49,7 @@ class IngestResponse(BaseModel):
     ip_addresses_count: int = 0
     duration_seconds: Optional[float] = None
     status: str = "success"
+    timestamp: Optional[str] = None
     logs_embedded: int
     message: str = "Ingestion complete"
 
